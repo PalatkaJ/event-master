@@ -5,4 +5,4 @@
 !.gitignore
 !.gitattributes
 
-*/db.json
+src/model/db.json
