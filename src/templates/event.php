@@ -1,1 +1,1 @@
-<?php
+<h1> <?= $eventName ?></h1>
