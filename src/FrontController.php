@@ -52,7 +52,6 @@ class FrontController {
 
     public function routeAndDispatch($serverData): void {
         $url = $serverData['REQUEST_URI'];
-        var_dump($url);
 
         $chunks = explode("/", $url);
 
@@ -60,6 +59,6 @@ class FrontController {
 
         $presenter = $this->route($chunks[$urlIndex] ?? null);
 
-        $this->dispatch($presenter, array_slice($chunks, 2), $serverData['REQUEST_METHOD'], $_POST);
+        $this->dispatch($presenter, array_slice($chunks, $urlIndex+1), $serverData['REQUEST_METHOD'], $_POST);
     }
 }
