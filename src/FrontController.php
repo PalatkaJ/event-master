@@ -52,6 +52,8 @@ class FrontController {
 
     public function routeAndDispatch($serverData): void {
         $url = $serverData['REQUEST_URI'];
+        var_dump($url);
+
         $chunks = explode("/", $url);
 
         $urlIndex = $this->getUrlIndex($chunks);
