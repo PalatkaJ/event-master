@@ -15,7 +15,7 @@ class EventsPresenter extends BasePresenter
     private e\Event $event;
 
     public function process(array $url, string $requestMethod, mixed $data): void {
-        $eventModel = new e\EventModel($this->jsonDb);
+        $eventModel = new e\EventModel($this->mysqli);
         // TODO more logic when creating and event, deciding based on requestMethod, etc.
         $event = $eventModel->getEventById($url[0]);
 

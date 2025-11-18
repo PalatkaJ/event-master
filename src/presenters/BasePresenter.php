@@ -6,7 +6,9 @@ use src\Container;
 
 abstract class BasePresenter implements IPresenter
 {
-    protected string $jsonDb;
+    //protected string $jsonDb;
+
+    protected \mysqli $mysqli;
 
     public abstract function process(array $url, string $requestMethod, mixed $data): void;
 
@@ -28,6 +30,7 @@ abstract class BasePresenter implements IPresenter
     }
 
     public function injectContainer(Container $container): void {
-        $this->jsonDb = $container->getDatabase();
+        //$this->jsonDb = $container->getDatabase();
+        $this->mysqli = $container->getDatabase();
     }
 }
