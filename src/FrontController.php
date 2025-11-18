@@ -2,28 +2,48 @@
 
 namespace src;
 
-use IEventModel;
+use presenters as p;
+
+require_once PRESENTERS_DIR.'/IPresenter.php';
+require_once PRESENTERS_DIR.'/BasePresenter.php';
+require_once PRESENTERS_DIR.'/EventsPresenter.php';
+require_once PRESENTERS_DIR.'/NotFoundPresenter.php';
 
 class FrontController {
-    private IEventModel $eventModel;
+    private Container $container;
 
-    public function __construct(IEventModel $eventModel) {
-        $this->eventModel = $eventModel;
+    public function injectContainer(Container $container): void {
+        $this->container = $container;
     }
 
-    private function generateSite(?string $eventName): void {
-        require_once __DIR__ . '/../src/templates/_header.php';
+    private function route($urlChunk): p\IPresenter {
+        switch ($urlChunk) {
+            case 'events':
+                $presenter = new p\EventsPresenter();
+                break;
+            default:
+                $presenter = new p\NotFoundPresenter();
+                break;
+        }
 
-        require_once __DIR__.'/../src/templates/event.php';
-
-        require_once __DIR__ . '/../src/templates/_footer.php';
+        $presenter->injectContainer($this->container);
+        return $presenter;
     }
 
-    private function route($urlChunk) {
-        return match ($urlChunk) {
-            'events' => new EventsPresenter(),
-            default => new NotFoundPresenter(),
-        };
+    private function dispatch($presenter, array $chunks, string $method, mixed $data)
+    {
+        try {
+            $presenter->process($chunks, $method, $data);
+        } catch (p\NotFoundException $e) {
+            $presenter = new p\NotFoundPresenter();
+            $presenter->injectContainer($this->container);
+            $presenter->process([], 'GET', null);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            die("Internal server error.");
+        }
+
+        $presenter->render();
     }
 
     public function routeAndDispatch($serverData): void {
@@ -32,14 +52,6 @@ class FrontController {
 
         $presenter = $this->route($chunks[1] ?? null);
 
-        $presenter->process(array_slice($chunks, 2), $serverData['REQUEST_METHOD'], $_POST);
-
-        /*
-        $eventId = $urlInArr[2];
-
-        $eventName = $this->eventModel->getEventById($eventId);
-
-        $this->generateSite($eventName);
-        */
+        $this->dispatch($presenter, array_slice($chunks, 2), $serverData['REQUEST_METHOD'], $_POST);
     }
 }

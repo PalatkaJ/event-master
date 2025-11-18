@@ -1,19 +1,6 @@
 <?php
 
-class Event {
-    public int $id;
-    public string $name;
-
-    public function __construct(int $id, string $name) {
-        $this->id = $id;
-        $this->name = $name;
-    }
-}
-
-interface IEventModel {
-    public function getEventById(int $id): ?string;
-    public function createEvent(string $eventName): void;
-}
+namespace events;
 
 class EventModel implements IEventModel {
     private int $freeId;
@@ -24,12 +11,13 @@ class EventModel implements IEventModel {
         $this->jsonDb = $jsonDb;
     }
 
-    public function getEventById(int $id): ?string {
+    public function getEventById(int $id): ?Event {
         $content = json_decode(file_get_contents($this->jsonDb));
 
         foreach ($content as $key => $event) {
-            // var_dump($event);
-            if ($event->id === $id) return $event->name;
+            if ($event->id === $id) {
+                return new Event($event->id, $event->name);
+            }
         }
 
         return null;

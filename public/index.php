@@ -1,19 +1,23 @@
 <?php
 
-namespace public;
+define('APP_ROOT', dirname(__DIR__));
+const PRESENTERS_DIR = APP_ROOT . '/src/presenters';
+const MODELS_DIR = APP_ROOT . '/src/model';
+const TEMPLATES_DIR = APP_ROOT . '/src/templates';
 
-use EventModel;
 use src\FrontController;
+use src\Container;
 
-function main() {
-    $modelDir = __DIR__.'/../src/model';
+require_once APP_ROOT . '/src/FrontController.php';
+require_once APP_ROOT . '/src/Container.php';
 
-    require_once $modelDir.'/EventModel.php';
-    $eventModel = new EventModel($modelDir.'/db.json');
+function main(): void {
+    $fc = new FrontController();
 
+    $container = new Container();
+    $fc->injectContainer($container);
 
-    $appFrontController = new FrontController($eventModel);
-    $appFrontController->routeAndDispatch($_SERVER);
+    $fc->routeAndDispatch($_SERVER);
 }
 
 
