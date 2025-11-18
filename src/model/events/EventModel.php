@@ -23,6 +23,7 @@ class EventModel implements IEventModel {
     }
 
     public function getEventById(int $id): ?Event {
+
         $stmt = $this->mysqli->prepare("SELECT * FROM events WHERE id=?");
 
         // Bind variables to '?' with hinting the type (string, double).
