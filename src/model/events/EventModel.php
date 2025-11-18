@@ -25,48 +25,24 @@ class EventModel implements IEventModel {
     public function getEventById(int $id): ?Event {
 
         $stmt = $this->mysqli->prepare("SELECT * FROM event WHERE id=?");
-
-        // Bind variables to '?' with hinting the type (string, double).
-        // Function takes references, thus you must use variables.
-        echo "1";
         $stmt->bind_param('i', $id);
-        echo "2";
         $stmt->execute();
-        echo "3";
         $query_result = $stmt->get_result();
-        echo "4";
+
         if ($query_result) {
-            // fetch associative array
             if ($row = $query_result->fetch_assoc()) {
-                var_dump($row);
                 return new Event($row["id"], $row["name"]);
             }
         }
-        /*
-        $content = json_decode(file_get_contents($this->jsonDb));
-
-        foreach ($content as $key => $event) {
-            if ($event->id === $id) {
-                return new Event($event->id, $event->name);
-            }
-        }
-        */
 
         return null;
     }
 
-    public function createEvent(string $eventName): void {
-
-
-        /*
-        $content = json_decode(file_get_contents($this->jsonDb));
-
-        $event = new Event($this->freeId, $eventName);
-        $content[] = $event;
-
-        file_put_contents($this->jsonDb, json_encode($content));
-        $this->freeId++;
-        */
+    public function createEvent(string $eventName, string $eventStart): void {
+        $stmt = $this->mysqli->prepare("INSERT INTO event (name, start) VALUES (?, ?)");
+        $stmt->bind_param('ss', $eventName, $eventStart);
+        $stmt->execute();
+        //$query_result = $stmt->get_result();
     }
 
     public function __destruct() {
