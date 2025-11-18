@@ -46,11 +46,17 @@ class FrontController {
         $presenter->render();
     }
 
+    private function getUrlIndex(mixed $chunks): int {
+        return in_array("~81112441", $chunks) ? 3: 1;
+    }
+
     public function routeAndDispatch($serverData): void {
         $url = $serverData['REQUEST_URI'];
         $chunks = explode("/", $url);
 
-        $presenter = $this->route($chunks[1] ?? null);
+        $urlIndex = $this->getUrlIndex($chunks);
+
+        $presenter = $this->route($chunks[$urlIndex] ?? null);
 
         $this->dispatch($presenter, array_slice($chunks, 2), $serverData['REQUEST_METHOD'], $_POST);
     }
