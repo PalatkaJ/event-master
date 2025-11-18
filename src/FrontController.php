@@ -40,7 +40,7 @@ class FrontController {
             $presenter->process([], 'GET', null);
         } catch (\Exception $e) {
             http_response_code(500);
-            die("Internal server error.");
+            die($e->getMessage());
         }
 
         $presenter->render();
