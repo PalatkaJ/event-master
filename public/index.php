@@ -15,6 +15,8 @@ require_once APP_ROOT . '/src/Container.php';
 require_once APP_ROOT . '/.config.php';
 
 function main(): void {
+    global $DB_CONFIG;
+
     $fc = new FrontController();
 
     $container = new Container();
