@@ -23,20 +23,21 @@ class EventModel implements IEventModel {
     }
 
     public function getEventById(int $id): ?Event {
-        echo "here";
         $stmt = $this->mysqli->prepare("SELECT * FROM events WHERE id=?");
 
         // Bind variables to '?' with hinting the type (string, double).
         // Function takes references, thus you must use variables.
+        echo "1";
         $stmt->bind_param('i', $id);
-
+        echo "2";
         $stmt->execute();
-
+        echo "3";
         $query_result = $stmt->get_result();
-
+        echo "4";
         if ($query_result) {
             // fetch associative array
             if ($row = $query_result->fetch_assoc()) {
+                var_dump($row);
                 return new Event($row["id"], $row["name"]);
             }
         }
