@@ -16,13 +16,14 @@ class EventModel implements IEventModel {
 
         if ($mysqli->connect_errno) {
             // handle error
+            echo "Failed to connect to MySQL: " . $mysqli->connect_error;
         }
 
         $this->mysqli = $mysqli;
     }
 
     public function getEventById(int $id): ?Event {
-
+        echo "here";
         $stmt = $this->mysqli->prepare("SELECT * FROM events WHERE id=?");
 
         // Bind variables to '?' with hinting the type (string, double).
