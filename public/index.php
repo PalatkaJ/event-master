@@ -12,13 +12,15 @@ use src\Container;
 
 require_once APP_ROOT . '/src/FrontController.php';
 require_once APP_ROOT . '/src/Container.php';
+require_once APP_ROOT . '/.config.php';
 
 function main(): void {
     $fc = new FrontController();
 
     $container = new Container();
-    $fc->injectContainer($container);
+    $container->createDatabase($DB_CONFIG['host'], $DB_CONFIG['user'], $DB_CONFIG['password'], $DB_CONFIG['database']);
 
+    $fc->injectContainer($container);
     $fc->routeAndDispatch($_SERVER);
 }
 

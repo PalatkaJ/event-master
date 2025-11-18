@@ -5,20 +5,9 @@ namespace events;
 use mysqli;
 
 class EventModel implements IEventModel {
-    private int $freeId;
-    //private string $jsonDb;
-
     private \mysqli $mysqli;
 
     public function __construct($mysqli) {
-        //$this->freeId = $freeId;
-        //$this->jsonDb = $jsonDb;
-
-        if ($mysqli->connect_errno) {
-            // handle error
-            echo "Failed to connect to MySQL: " . $mysqli->connect_error;
-        }
-
         $this->mysqli = $mysqli;
     }
 
@@ -44,23 +33,4 @@ class EventModel implements IEventModel {
         $stmt->execute();
         //$query_result = $stmt->get_result();
     }
-
-    public function __destruct() {
-        $this->mysqli->close();
-    }
-}
-
-function test() {
-    $eventModel = new EventModel("db.json");
-    /*
-    $eventModel->createEvent("e1");
-    $eventModel->createEvent("e2");
-    $eventModel->createEvent("e3");
-    $eventModel->createEvent("e4");
-    $eventModel->createEvent("e5");
-    */
-
-    $e = $eventModel->getEventById(3);
-
-    echo $e->name;
 }
