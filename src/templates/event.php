@@ -1,1 +1,1 @@
-<h1> <?= $eventName ?></h1>
+<h1> {= $eventName} </h1>

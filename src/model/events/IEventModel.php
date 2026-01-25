@@ -3,6 +3,6 @@
 namespace events;
 
 interface IEventModel {
-    public function getEventById(int $id): ?Event;
-    public function createEvent(string $eventName, string $eventStart): void;
+    public function getEventById(int $id): ?array;
+    public function createEvent(array $eventData): void;
 }

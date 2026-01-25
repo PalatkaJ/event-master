@@ -19,6 +19,7 @@ class FrontController {
     private function route($urlChunk): p\IPresenter {
         switch ($urlChunk) {
             case 'events':
+            case '':
                 $presenter = new p\EventsPresenter();
                 break;
             default:
@@ -30,14 +31,14 @@ class FrontController {
         return $presenter;
     }
 
-    private function dispatch($presenter, array $chunks, string $method, mixed $data)
+    private function dispatch($presenter, array $chunks, string $method, mixed $data, mixed $files): void
     {
         try {
-            $presenter->process($chunks, $method, $data);
+            $presenter->process($chunks, $method, $data, $files);
         } catch (p\NotFoundException $e) {
             $presenter = new p\NotFoundPresenter();
             $presenter->injectContainer($this->container);
-            $presenter->process([], 'GET', null);
+            $presenter->process([], 'GET', null, null);
         } catch (\Exception $e) {
             http_response_code(500);
             die($e->getMessage());
@@ -59,6 +60,6 @@ class FrontController {
 
         $presenter = $this->route($chunks[$urlIndex] ?? null);
 
-        $this->dispatch($presenter, array_slice($chunks, $urlIndex+1), $serverData['REQUEST_METHOD'], $_POST);
+        $this->dispatch($presenter, array_slice($chunks, $urlIndex+1), $serverData['REQUEST_METHOD'], $_POST, $_FILES);
     }
 }
