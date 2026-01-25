@@ -12,7 +12,6 @@ class EventModel implements IEventModel {
     }
 
     public function getEventById(int $id): ?Event {
-
         $stmt = $this->mysqli->prepare("SELECT * FROM event WHERE id=?");
         $stmt->bind_param('i', $id);
         $stmt->execute();
