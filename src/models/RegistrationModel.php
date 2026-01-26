@@ -31,4 +31,17 @@ class RegistrationModel
             throw $e;
         }
     }
+
+    public function getUserRegisteredWorkshops(string $email, int $eventId): array {
+        $sql = "SELECT w.id, w.name 
+            FROM workshop w
+            JOIN workshop_registration wr ON w.id = wr.workshop_id
+            WHERE wr.user_email = ? AND w.event_id = ?";
+
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('si', $email, $eventId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 }

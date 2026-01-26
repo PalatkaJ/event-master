@@ -54,7 +54,7 @@ class EventModel {
         }
     }
 
-    public function createEvent(array $eventData, array $workshopNames): void {
+    public function createEvent(array $eventData): void {
         $this->mysqli->begin_transaction();
 
         try {
@@ -62,7 +62,7 @@ class EventModel {
 
             $eventId = $this->mysqli->insert_id;
 
-            $this->insertWorkshops($eventId, $workshopNames);
+            $this->insertWorkshops($eventId, $eventData['workshops']);
 
             $this->mysqli->commit();
 
@@ -105,5 +105,41 @@ class EventModel {
         $stmt->execute();
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    private function deleteWorkshopsForEvent(string $eventId): void {
+        $deleteSql = "DELETE FROM workshop WHERE event_id = ?";
+        $delStmt = $this->mysqli->prepare($deleteSql);
+        $delStmt->bind_param('i', $eventId);
+        $delStmt->execute();
+    }
+
+    public function updateEvent(array $eventData, array $workshopNames): void {
+        $this->mysqli->begin_transaction();
+
+        try {
+            $sql = "UPDATE event SET name = ?, description = ?, start_date = ?, end_date = ?, hero_img = ? WHERE id = ?";
+            $stmt = $this->mysqli->prepare($sql);
+            $stmt->bind_param('sssssi',
+                $eventData['name'],
+                $eventData['description'],
+                $eventData['start_date'],
+                $eventData['end_date'],
+                $eventData['hero_image'],
+                $eventData['id']
+            );
+            $stmt->execute();
+
+            /* TODO enable workshop changes
+            $this->deleteWorkshopsForEvent($eventData['id']);
+
+            $this->insertWorkshops($eventData['id'], $workshopNames);
+            */
+
+            $this->mysqli->commit();
+        } catch (\mysqli_sql_exception $e) {
+            $this->mysqli->rollback();
+            throw new \ServerException("Database error: " . $e->getMessage());
+        }
     }
 }
