@@ -1,7 +1,7 @@
 <h1> Latest Events </h1>
 
 {foreach $events as $event}
-<div>
+<div class="event-card">
 <h2> {= $event['name']} </h2>
 <p>
     {= $event['start_date']}

@@ -25,23 +25,34 @@
         <input type="file" id="hero_image" name="hero_image" accept="image/*" required>
     </div>
 
-    <fieldset id="workshops-container">
+    <fieldset>
         <legend>Workshops</legend>
-        <div class="workshop-entry">
-            <input type="text" name="workshops[]" placeholder="Workshop name" required>
+        <div id="workshops-list">
+            <div class="workshop-entry">
+                <input type="text" name="workshops[]" placeholder="Workshop name" required>
+            </div>
         </div>
+
         <button type="button" onclick="addWorkshop()">+ Add another workshop</button>
     </fieldset>
 
     <button type="submit">Create Event</button>
+
 </form>
 
-<script>
-    function addWorkshop() {
-        const container = document.getElementById('workshops-container');
-        const div = document.createElement('div');
-        div.className = 'workshop-entry';
-        div.innerHTML = '<input type="text" name="workshops[]" placeholder="Workshop name" required>';
-        container.insertBefore(div, container.lastElementChild);
-    }
-</script>
+    <script>
+        function addWorkshop() {
+            const list = document.getElementById('workshops-list');
+            const div = document.createElement('div');
+            div.className = 'workshop-entry';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'workshops[]';
+            input.placeholder = 'Workshop name';
+            input.required = true;
+
+            div.appendChild(input);
+            list.appendChild(div);
+        }
+    </script>
