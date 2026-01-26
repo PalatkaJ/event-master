@@ -88,4 +88,22 @@ class EventModel {
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function getAllEventsUsers(mixed $email): array {
+        $sql = "SELECT e.* FROM event e JOIN event_registration er ON e.id = er.event_id WHERE er.user_email = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getWorkshopsForEvent(int $eventId): array {
+        $sql = "SELECT * FROM workshop WHERE event_id = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('i', $eventId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 }

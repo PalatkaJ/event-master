@@ -16,11 +16,19 @@ class EventsPresenter extends BasePresenter
 
     private m\RegistrationModel $registrationModel;
 
+    private function addOrganizerToEvents(array &$events): void {
+        foreach ($events as &$event) {
+            $event['organizer'] = $this->userModel->getUserByEmail($event['organizer']);
+        }
+    }
+
     private function processLandingPage(): void {
         $events = $this->eventModel->getNewestEvents();
         if (!isset($events)) {
             throw new NotFoundException();
         }
+
+        $this->addOrganizerToEvents($events);
 
         $this->templateFilename = 'landing_page.php';
         $this->templateData['events'] = $events;
@@ -81,24 +89,51 @@ class EventsPresenter extends BasePresenter
             throw new NotFoundException("event not found");
         }
 
-        $this->templateFilename = 'event_detail.php';
+        $event['workshops'] = $this->eventModel->getWorkshopsForEvent($event['id']);
+        $isOwner = false;
+        $isRegistered = false;
+
+        $currentUser = $this->container->getLoggedUser();
+
+        if (isset($currentUser)) {
+            if ($event['organizer'] == $currentUser['email']) {
+                $isOwner = true;
+            }
+
+            $currentUsersEvents = $this->eventModel->getAllEventsUsers($currentUser['email']);
+            foreach ($currentUsersEvents as $e) {
+                if ($e['id'] == $event['id']) {
+                    $isRegistered = true;
+                }
+            }
+        }
+
+        $this->templateData['isOwner'] = $isOwner;
+        $this->templateData['isRegistered'] = $isRegistered;
         $this->templateData['event'] = $event;
+        $this->templateFilename = 'event_detail.php';
     }
 
     private function processEventsAll() {
         $events = $this->eventModel->getAllEvents();
+
+        $this->addOrganizerToEvents($events);
 
         $this->templateData['events'] = $events;
         $this->templateFilename = 'all_events.php';
     }
 
     private function processEventsAllUsers(): void {
+        $email = $this->container->getLoggedUser()['email'];
+        $events = $this->eventModel->getAllEventsUsers($email);
+
+        $this->templateData['events'] = $events;
         $this->templateFilename = 'users_events.php';
     }
 
     private function processEventSub(array $url, string $reqMethod, mixed $data, mixed $files): void {
         // base/events/new or mine or ...
-        if (!is_integer($url[0])) {
+        if (!is_numeric($url[0])) {
             switch ($url[0]) {
                 case 'new':
                     $this->processEventCreation($reqMethod, $data, $files);
@@ -123,7 +158,7 @@ class EventsPresenter extends BasePresenter
                 $this->processEventEdit($id);
                 break;
             case 'register':
-                $this->processEventRegistration($id);
+                $this->processEventRegistration($id, $reqMethod, $data);
                 break;
             default:
                 throw new NotFoundException("invalid url");
