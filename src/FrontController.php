@@ -2,12 +2,16 @@
 
 namespace src;
 
+use NotFoundException;
 use presenters as p;
+
+require_once __DIR__.'/Exceptions.php';
 
 require_once PRESENTERS_DIR.'/IPresenter.php';
 require_once PRESENTERS_DIR.'/BasePresenter.php';
 require_once PRESENTERS_DIR.'/EventsPresenter.php';
-require_once PRESENTERS_DIR.'/NotFoundPresenter.php';
+require_once PRESENTERS_DIR.'/UsersPresenter.php';
+require_once PRESENTERS_DIR . '/ExceptionPresenter.php';
 
 class FrontController {
     private Container $container;
@@ -22,8 +26,14 @@ class FrontController {
             case '':
                 $presenter = new p\EventsPresenter();
                 break;
+            case 'login':
+            case 'register':
+            case 'logout':
+            case 'settings':
+                $presenter = new p\UsersPresenter();
+                break;
             default:
-                $presenter = new p\NotFoundPresenter();
+                $presenter = new p\ExceptionPresenter(new NotFoundException());
                 break;
         }
 
@@ -35,31 +45,34 @@ class FrontController {
     {
         try {
             $presenter->process($chunks, $method, $data, $files);
-        } catch (p\NotFoundException $e) {
-            $presenter = new p\NotFoundPresenter();
+        } catch (\Exception $e) {
+            $presenter = new p\ExceptionPresenter($e);
             $presenter->injectContainer($this->container);
             $presenter->process([], 'GET', null, null);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            die($e->getMessage());
         }
 
         $presenter->render();
     }
 
-    private function getUrlIndex(mixed $chunks): int {
-        return in_array("~81112441", $chunks) ? 3: 1;
+    private function getRelativePath(string $url): string {
+        $path = explode('?', $url)[0];
+
+        if (BASE_URL !== '' && str_starts_with($path, BASE_URL)) {
+            $path = substr($path, strlen(BASE_URL));
+        }
+
+        return trim($path, '/');
     }
 
     public function routeAndDispatch($serverData): void {
         $url = $serverData['REQUEST_URI'];
 
-        $chunks = explode("/", $url);
+        $path = $this->getRelativePath($url);
 
-        $urlIndex = $this->getUrlIndex($chunks);
+        $chunks = $path === '' ? [] : explode('/', $path);
 
-        $presenter = $this->route($chunks[$urlIndex] ?? null);
+        $presenter = $this->route($chunks[0] ?? null);
 
-        $this->dispatch($presenter, array_slice($chunks, $urlIndex+1), $serverData['REQUEST_METHOD'], $_POST, $_FILES);
+        $this->dispatch($presenter, $chunks, $serverData['REQUEST_METHOD'], $_POST, $_FILES);
     }
 }

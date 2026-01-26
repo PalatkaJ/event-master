@@ -1,10 +1,11 @@
 <?php
 
-namespace events;
+namespace models;
 
 use mysqli;
+use mysqli_sql_exception;
 
-class EventModel implements IEventModel {
+class EventModel {
     private \mysqli $mysqli;
 
     public function __construct($mysqli) {
@@ -27,12 +28,16 @@ class EventModel implements IEventModel {
     }
 
     public function createEvent(array $eventData): void {
-        $sql = "INSERT INTO event (name, description, start_date, end_date, hero_img) VALUES (?, ?, ?, ?, ?)";
+        try {
+            $sql = "INSERT INTO event (name, description, start_date, end_date, hero_img) VALUES (?, ?, ?, ?, ?)";
 
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('sssss', $eventData['name'], $eventData['description'],
-            $eventData['start_date'], $eventData['end_date'], $eventData['hero_image']);
-        $stmt->execute();
+            $stmt = $this->mysqli->prepare($sql);
+            $stmt->bind_param('sssss', $eventData['name'], $eventData['description'],
+                $eventData['start_date'], $eventData['end_date'], $eventData['hero_image']);
+            $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            throw new \ServerException("Database error: " . $e->getMessage());
+        }
     }
 
     public function getNewestEvents(int $limit = 3): array {

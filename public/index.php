@@ -2,9 +2,12 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+session_start();
+
+define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
 define('APP_ROOT', dirname(__DIR__));
 const PRESENTERS_DIR = APP_ROOT . '/src/presenters';
-const MODELS_DIR = APP_ROOT . '/src/model';
+const MODELS_DIR = APP_ROOT . '/src/models';
 const TEMPLATES_DIR = APP_ROOT . '/src/templates';
 const TEMP_DIR = APP_ROOT . '/src/temp';
 

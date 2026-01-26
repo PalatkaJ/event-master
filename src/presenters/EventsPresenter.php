@@ -2,19 +2,15 @@
 
 namespace presenters;
 
-use events as e;
-use events\EventModel;
+use models\EventModel as EventModel;
 use Exception;
+use NotFoundException;
 
-define('EVENTS_DIR', MODELS_DIR.'/events');
-
-require_once EVENTS_DIR.'/Event.php';
-require_once EVENTS_DIR.'/IEventModel.php';
-require_once EVENTS_DIR.'/EventModel.php';
+require_once MODELS_DIR.'/EventModel.php';
 
 class EventsPresenter extends BasePresenter
 {
-    private e\EventModel $eventModel;
+    private EventModel $eventModel;
 
     private function processLandingPage(): void {
         $events = $this->eventModel->getNewestEvents();
@@ -36,39 +32,41 @@ class EventsPresenter extends BasePresenter
             $data['hero_image'] = $randomName;
             $this->eventModel->createEvent($data);
         } else {
-            throw new Exception("Could not save the uploaded image.");
+            throw new \ServerException("Could not save the uploaded image.");
         }
     }
 
     private function processEventCreation(string $reqMethod, mixed $data, mixed $files): void {
         switch ($reqMethod) {
             case 'GET':
-                $this->templateFilename = 'create_event.php';
+                $this->templateFilename = 'event_create.php';
                 break;
             case 'POST':
                 $this->createEvent($data, $files);
-                $this->templateFilename = 'event_creation_confirmation.php';
-                break;
+                header("Location: " . BASE_URL . "/events/list");
+                exit;
             default:
-                throw new NotFoundException();
+                throw new NotFoundException("invalid method");
         }
     }
 
     private function processEventEdit(string $id): void {
 
+        $this->templateFilename = 'event_update.php';
     }
 
     private function processEventRegistration(string $id): void {
 
+        $this->templateFilename = 'event_registration.php';
     }
 
     private function processEventDetail(string $id): void {
         $event = $this->eventModel->getEventById($id);
         if (!isset($event)) {
-            throw new NotFoundException();
+            throw new NotFoundException("event not found");
         }
 
-        $this->templateFilename = 'event.php';
+        $this->templateFilename = 'event_detail.php';
         $this->templateData['eventName'] = $event['name'];
     }
 
@@ -88,12 +86,13 @@ class EventsPresenter extends BasePresenter
                 $this->processEventRegistration($id);
                 break;
             default:
-                throw new NotFoundException();
+                throw new NotFoundException("invalid url");
         }
     }
 
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void {
         $this->templateData = [];
+        $url = array_slice($url, 1);
 
         if (!isset($this->eventModel)) {
             $this->eventModel = new EventModel($this->mysqli);

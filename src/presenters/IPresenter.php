@@ -4,9 +4,6 @@ namespace presenters;
 
 use src\Container;
 
-
-class NotFoundException extends \Exception {}
-
 interface IPresenter
 {
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void;

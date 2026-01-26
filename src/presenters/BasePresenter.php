@@ -8,12 +8,12 @@ require_once __DIR__.'/Templator.php';
 
 abstract class BasePresenter implements IPresenter
 {
-    //protected string $jsonDb;
-
     private Templator $templator;
+
+    protected Container $container;
     protected \mysqli $mysqli;
+
     protected string $templateFilename;
-    protected string $compiledTemplateLocation;
 
     protected array $templateData = [];
 
@@ -23,51 +23,40 @@ abstract class BasePresenter implements IPresenter
 
     public abstract function process(array $url, string $requestMethod, mixed $data, mixed $files): void;
 
-    private function renderHeader(): void {
-        require_once TEMPLATES_DIR.'/_header.php';
+    private function getPathTemplateFilename(string $filename): string {
+        return TEMPLATES_DIR . '/' . $filename;
     }
 
-    private function renderFooter(): void {
-        require_once TEMPLATES_DIR.'/_footer.php';
+    private function getCompiledTemplateFilename(string $filename): string {
+        return TEMP_DIR . '/' . $filename;
     }
 
-    private function getPathTemplateFilename(): string {
-        return TEMPLATES_DIR . '/' . $this->templateFilename;
-    }
-
-    private function setCompiledTemplateLocation(): void {
-        $this->compiledTemplateLocation = TEMP_DIR . '/' . $this->templateFilename;
-    }
-
-    private function tryCompileTemplate():void {
+    private function tryCompileTemplate(string $filename):void {
         try {
-            $this->templator->loadTemplate($this->getPathTemplateFilename());
-            $this->templator->compileAndSave($this->compiledTemplateLocation);
+            $this->templator->loadTemplate($this->getPathTemplateFilename($filename));
+            $this->templator->compileAndSave($this->getCompiledTemplateFilename($filename));
         } catch (\Exception $e) {
-            // Output the specific error message
             echo "Template Error: " . $e->getMessage();
-            // Stop further execution
             exit(1);
         }
     }
 
-    private function renderBody(): void {
-        $this->setCompiledTemplateLocation();
-
-        $this->tryCompileTemplate();
+    private function renderWithDataExtraction(string $filename): void {
+        $this->templateData['user'] = $this->container->getLoggedUser();
+        $this->tryCompileTemplate($filename);
 
         extract($this->templateData);
-        require_once $this->compiledTemplateLocation;
+        require_once $this->getCompiledTemplateFilename($filename);
     }
 
     public function render(): void {
-
-        $this->renderHeader();
-        $this->renderBody();
-        $this->renderFooter();
+        $this->renderWithDataExtraction('_header.php');
+        $this->renderWithDataExtraction($this->templateFilename);
+        $this->renderWithDataExtraction('_footer.php');
     }
 
     public function injectContainer(Container $container): void {
+        $this->container = $container;
         $this->mysqli = $container->getDatabase();
     }
 }
