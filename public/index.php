@@ -10,7 +10,6 @@ const PRESENTERS_DIR = APP_ROOT . '/src/presenters';
 const MODELS_DIR = APP_ROOT . '/src/models';
 const TEMPLATES_DIR = APP_ROOT . '/src/templates';
 const TEMP_DIR = APP_ROOT . '/src/temp';
-
 const DATA_DIR = APP_ROOT . '/data';
 
 use src\FrontController;

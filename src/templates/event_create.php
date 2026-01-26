@@ -1,3 +1,4 @@
+<h1>Event Creation</h1>
 <form action="/events/new" method="POST" enctype="multipart/form-data">
     <div>
         <label for="name">Event Name (max 64 chars):</label>
@@ -24,5 +25,23 @@
         <input type="file" id="hero_image" name="hero_image" accept="image/*" required>
     </div>
 
+    <fieldset id="workshops-container">
+        <legend>Workshops</legend>
+        <div class="workshop-entry">
+            <input type="text" name="workshops[]" placeholder="Workshop name" required>
+        </div>
+        <button type="button" onclick="addWorkshop()">+ Add another workshop</button>
+    </fieldset>
+
     <button type="submit">Create Event</button>
 </form>
+
+<script>
+    function addWorkshop() {
+        const container = document.getElementById('workshops-container');
+        const div = document.createElement('div');
+        div.className = 'workshop-entry';
+        div.innerHTML = '<input type="text" name="workshops[]" placeholder="Workshop name" required>';
+        container.insertBefore(div, container.lastElementChild);
+    }
+</script>

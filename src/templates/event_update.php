@@ -1,1 +1,1 @@
-<?php
+<h1>Event Update</h1>

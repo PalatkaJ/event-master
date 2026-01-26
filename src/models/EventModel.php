@@ -27,16 +27,48 @@ class EventModel {
         return null;
     }
 
-    public function createEvent(array $eventData): void {
-        try {
-            $sql = "INSERT INTO event (name, description, start_date, end_date, hero_img) VALUES (?, ?, ?, ?, ?)";
+    private function insertEvent(array $eventData) {
+        $sql = "INSERT INTO event (name, description, start_date, end_date, hero_img, organizer) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('ssssss',
+            $eventData['name'],
+            $eventData['description'],
+            $eventData['start_date'],
+            $eventData['end_date'],
+            $eventData['hero_image'],
+            $eventData['organizer']['email']
+        );
+        $stmt->execute();
+    }
 
-            $stmt = $this->mysqli->prepare($sql);
-            $stmt->bind_param('sssss', $eventData['name'], $eventData['description'],
-                $eventData['start_date'], $eventData['end_date'], $eventData['hero_image']);
-            $stmt->execute();
-        } catch (mysqli_sql_exception $e) {
-            throw new \ServerException("Database error: " . $e->getMessage());
+    private function insertWorkshops(int $eventId, array $workshopNames) {
+        $workshopSql = "INSERT INTO workshop (event_id, name) VALUES (?, ?)";
+        $workshopStmt = $this->mysqli->prepare($workshopSql);
+
+        foreach ($workshopNames as $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+
+            $workshopStmt->bind_param('is', $eventId, $name);
+            $workshopStmt->execute();
+        }
+    }
+
+    public function createEvent(array $eventData, array $workshopNames): void {
+        $this->mysqli->begin_transaction();
+
+        try {
+            $this->insertEvent($eventData);
+
+            $eventId = $this->mysqli->insert_id;
+
+            $this->insertWorkshops($eventId, $workshopNames);
+
+            $this->mysqli->commit();
+
+        } catch (\mysqli_sql_exception $e) {
+            $this->mysqli->rollback();
+            throw new \ServerException("Failed to create event and workshops: " . $e->getMessage());
         }
     }
 
@@ -44,6 +76,14 @@ class EventModel {
         $sql = "SELECT * FROM event ORDER BY created_at DESC LIMIT ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param("i", $limit);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getAllEvents(): array {
+        $sql = "SELECT * FROM event ORDER BY created_at DESC";
+        $stmt = $this->mysqli->prepare($sql);
         $stmt->execute();
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

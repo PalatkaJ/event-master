@@ -1,1 +1,1 @@
-<?php
+<h1>My Events</h1>

@@ -17,7 +17,7 @@ class UserModel {
 
     public function getUserByEmail(string $email): ?array {
         $stmt = $this->mysqli->prepare("SELECT * FROM user WHERE email=?");
-        $stmt->bind_param('i', $email);
+        $stmt->bind_param('s', $email);
         $stmt->execute();
         $query_result = $stmt->get_result();
 

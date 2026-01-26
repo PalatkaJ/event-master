@@ -1,1 +1,3 @@
-<h1> {= $eventName} </h1>
+<h1> Event Detail </h1>
+
+name: {= $event['name']}

@@ -2,15 +2,19 @@
 
 namespace presenters;
 
-use models\EventModel as EventModel;
-use Exception;
+use models as m;
 use NotFoundException;
 
 require_once MODELS_DIR.'/EventModel.php';
+require_once MODELS_DIR.'/RegistrationModel.php';
+require_once MODELS_DIR.'/UserModel.php';
 
 class EventsPresenter extends BasePresenter
 {
-    private EventModel $eventModel;
+    private m\EventModel $eventModel;
+    private m\UserModel $userModel;
+
+    private m\RegistrationModel $registrationModel;
 
     private function processLandingPage(): void {
         $events = $this->eventModel->getNewestEvents();
@@ -30,7 +34,8 @@ class EventsPresenter extends BasePresenter
 
         if (move_uploaded_file($files['hero_image']['tmp_name'], $destinationPath)) {
             $data['hero_image'] = $randomName;
-            $this->eventModel->createEvent($data);
+            $data['organizer'] = $this->container->getLoggedUser();
+            $this->eventModel->createEvent($data, $data['workshops']);
         } else {
             throw new \ServerException("Could not save the uploaded image.");
         }
@@ -43,7 +48,7 @@ class EventsPresenter extends BasePresenter
                 break;
             case 'POST':
                 $this->createEvent($data, $files);
-                header("Location: " . BASE_URL . "/events/list");
+                header("Location: " . BASE_URL . "/events");
                 exit;
             default:
                 throw new NotFoundException("invalid method");
@@ -51,13 +56,23 @@ class EventsPresenter extends BasePresenter
     }
 
     private function processEventEdit(string $id): void {
-
+        // TODO
         $this->templateFilename = 'event_update.php';
     }
 
-    private function processEventRegistration(string $id): void {
-
-        $this->templateFilename = 'event_registration.php';
+    private function processEventRegistration(string $id, string $reqMethod, mixed $data): void {
+        switch ($reqMethod) {
+            case 'GET':
+                $this->templateFilename = 'event_registration.php';
+                break;
+            case 'POST':
+                $currentUser = $this->container->getLoggedUser();
+                $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
+                header("Location: " . BASE_URL . "/events/list");
+                exit;
+            default:
+                throw new NotFoundException("invalid method");
+        }
     }
 
     private function processEventDetail(string $id): void {
@@ -67,10 +82,35 @@ class EventsPresenter extends BasePresenter
         }
 
         $this->templateFilename = 'event_detail.php';
-        $this->templateData['eventName'] = $event['name'];
+        $this->templateData['event'] = $event;
     }
 
-    private function processEventSub(array $url): void {
+    private function processEventsAll() {
+        $events = $this->eventModel->getAllEvents();
+
+        $this->templateData['events'] = $events;
+        $this->templateFilename = 'all_events.php';
+    }
+
+    private function processEventsAllUsers(): void {
+        $this->templateFilename = 'users_events.php';
+    }
+
+    private function processEventSub(array $url, string $reqMethod, mixed $data, mixed $files): void {
+        // base/events/new or mine or ...
+        if (!is_integer($url[0])) {
+            switch ($url[0]) {
+                case 'new':
+                    $this->processEventCreation($reqMethod, $data, $files);
+                    break;
+                case 'mine':
+                    $this->processEventsAllUsers();
+                    break;
+            }
+            return;
+        }
+
+        // base/events/id/...
         $id = $url[0];
 
         if (sizeof($url) == 1) {
@@ -90,24 +130,36 @@ class EventsPresenter extends BasePresenter
         }
     }
 
+    private function ensureModelsCreated(): void {
+        if (!isset($this->eventModel)) {
+            $this->eventModel = new m\EventModel($this->mysqli);
+        }
+        if (!isset($this->userModel)) {
+            $this->userModel = new m\UserModel($this->mysqli);
+        }
+        if (!isset($this->registrationModel)) {
+            $this->registrationModel = new m\RegistrationModel($this->mysqli);
+        }
+    }
+
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void {
         $this->templateData = [];
-        $url = array_slice($url, 1);
 
-        if (!isset($this->eventModel)) {
-            $this->eventModel = new EventModel($this->mysqli);
-        }
+        $this->ensureModelsCreated();
 
+        // base/
         if (empty($url)) {
             $this->processLandingPage();
             return;
         }
 
-        if ($url[0] == 'new') {
-            $this->processEventCreation($requestMethod, $data, $files);
+        // base/events
+        if (sizeof($url) == 1) {
+            $this->processEventsAll();
             return;
         }
 
-        $this->processEventSub($url);
+        // base/events/...
+        $this->processEventSub(array_slice($url, 1), $requestMethod, $data, $files);
     }
 }
