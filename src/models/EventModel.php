@@ -142,4 +142,12 @@ class EventModel {
             throw new \ServerException("Database error: " . $e->getMessage());
         }
     }
+
+    // TODO test, are workshops getting deleted as well?
+    public function deleteEvent(int $eventId): void {
+        $sql = "DELETE FROM event WHERE id = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('i', $eventId);
+        $stmt->execute();
+    }
 }

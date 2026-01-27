@@ -30,9 +30,10 @@
         <a href="{= BASE_URL}/events/{=$event['id']}/register">Register for Event</a>
         {/if}
 
-        TODO enable to unregister if not owner and registered
         {if $isRegistered && !$isOwner}
-
+    <form action="{=BASE_URL}/events/{=$event['id']}/delete" method="POST" enctype="multipart/form-data">
+        <button type="submit">Cancel Registration</button>
+    </form>
         {/if}
     {/if}
 
