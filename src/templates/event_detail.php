@@ -1,40 +1,50 @@
-<h1> Event Detail </h1>
+<h1> {= $event['name'] } </h1>
 
-<div>
-    <h2>
-        {= $event['name'] }
-    </h2>
-    <p>
-        description: {= $event['description'] }
-    </p>
-    <p>
-        start: {= $event['start_date'] }
-    </p>
-    <p>
-        end: {= $event['end_date'] }
-    </p>
-    <p>
-        img: <img src="{= BASE_URL }/data/{= $event['hero_img'] }" alt="Event Image">
-    </p>
-    {foreach $event['workshops'] as $workshop}
-        <p>
-            {= $workshop['name'] }
-        </p>
-    {/foreach}
+<div class="event-detail">
+    <div class="detail-image-box">
+        <img src="{= BASE_URL }/data/{= $event['hero_image'] }" alt="Event Image">
+    </div>
+
+    <div class="detail-group">
+        <span class="fake-label stacked">Description:</span>
+        <p>{= $event['description'] }</p>
+    </div>
+
+    <div class="detail-group">
+        <span class="fake-label">Start Date:</span>
+        <p>{= $event['start_date'] }</p>
+    </div>
+
+    <div class="detail-group">
+        <span class="fake-label">End Date:</span>
+        <p>{= $event['end_date'] }</p>
+    </div>
+
+    <fieldset>
+        <legend>Workshops</legend>
+        <div class="workshop-list">
+            {foreach $event['workshops'] as $workshop}
+            <p class="workshop-item">{= $workshop['name'] }</p>
+            {/foreach}
+        </div>
+    </fieldset>
 
     {if isset($user['email'])}
         {if $isOwner}
-        <a href="{= BASE_URL}/events/{=$event['id']}/edit">Edit Event</a>
+    <form action="{=BASE_URL}/events/{=$event['id']}/edit" method="GET">
+        <button type="submit">Edit Event</button>
+    </form>
         {/if}
         {if !$isRegistered && !$isOwner}
-        <a href="{= BASE_URL}/events/{=$event['id']}/register">Register for Event</a>
+    <form action="{=BASE_URL}/events/{=$event['id']}/register" method="GET">
+        <button type="submit">Register for Event</button>
+    </form>
         {/if}
 
         {if $isRegistered && !$isOwner}
     <form action="{=BASE_URL}/events/{=$event['id']}/cancel" method="POST" enctype="multipart/form-data">
-        <button type="submit">Cancel Registration</button>
+        <button type="submit" class="deleteBtn">Cancel Registration</button>
     </form>
         {/if}
     {/if}
-
 </div>

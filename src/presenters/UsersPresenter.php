@@ -67,19 +67,24 @@ class UsersPresenter extends BasePresenter
                 $this->templateFilename = 'user_detail.php';
                 break;
             case 'POST':
-                if (isset($data['_method']) && $data['_method'] === 'DELETE') {
-                    // TODO
-                    // $this->userModel->deleteUser($email);
-                    $this->container->logoutUser();
-                    header("Location: " . BASE_URL . "/");
-                } else {
-                    $newName = $data['full_name'] ?? '';
-                    $this->userModel->updateUser($email, $newName);
-                    $this->container->loginUser($email, $newName);
-                    header("Location: " . BASE_URL . "/settings");
-                }
+                $newName = $data['full_name'] ?? '';
+                $this->userModel->updateUser($email, $newName);
+                $this->container->loginUser($email, $newName);
+                header("Location: " . BASE_URL . "/settings");
                 exit;
         }
+    }
+
+    private function processAccountDelete(string $reqMethod): void {
+        if ($reqMethod !== 'POST') {
+            throw new \NotFoundException();
+        }
+
+        $currentUser = $this->requireLogin();
+        $this->container->logoutUser();
+        $this->userModel->deleteUser($currentUser['email']);
+        header("Location: " . BASE_URL . "/");
+        exit;
     }
 
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void
@@ -101,8 +106,11 @@ class UsersPresenter extends BasePresenter
             case 'settings':
                 $this->processSettings($requestMethod, $data);
                 break;
+            case 'delete':
+                $this->processAccountDelete($requestMethod);
+                break;
             default:
-                throw new \NotFoundException("invalid url");
+                throw new \NotFoundException();
         }
     }
 }

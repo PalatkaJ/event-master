@@ -28,7 +28,7 @@ class EventModel {
     }
 
     private function insertEvent(array $eventData) {
-        $sql = "INSERT INTO event (name, description, start_date, end_date, hero_img, organizer) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO event (name, description, start_date, end_date, hero_image, organizer) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('ssssss',
             $eventData['name'],
@@ -68,7 +68,7 @@ class EventModel {
 
         } catch (\mysqli_sql_exception $e) {
             $this->mysqli->rollback();
-            throw new \ServerException("Failed to create event and workshops: " . $e->getMessage());
+            throw new \ServerException();
         }
     }
 
@@ -107,43 +107,45 @@ class EventModel {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    private function deleteWorkshopsForEvent(string $eventId): void {
-        $deleteSql = "DELETE FROM workshop WHERE event_id = ?";
-        $delStmt = $this->mysqli->prepare($deleteSql);
-        $delStmt->bind_param('i', $eventId);
-        $delStmt->execute();
+    private function updateEventMain(array $eventData): void {
+        $sql = "UPDATE event SET name = ?, description = ?, start_date = ?, end_date = ?, hero_image = ? WHERE id = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('sssssi',
+            $eventData['name'],
+            $eventData['description'],
+            $eventData['start_date'],
+            $eventData['end_date'],
+            $eventData['hero_image'],
+            $eventData['id']
+        );
+        $stmt->execute();
     }
 
-    public function updateEvent(array $eventData, array $workshopNames): void {
+    private function removeWorkshops(int $eventId, array $workshopsToRemove): void {
+        $sql = "DELETE FROM workshop WHERE name = ? AND event_id = ?";
+        $stmt = $this->mysqli->prepare($sql);
+
+        foreach ($workshopsToRemove as $name) {
+            $name = trim($name);
+            $stmt->bind_param('ss', $name, $eventId);
+            $stmt->execute();
+        }
+    }
+
+    public function updateEvent(array $eventData, array $workshopsToAdd, array $workshopsToRemove): void {
         $this->mysqli->begin_transaction();
 
         try {
-            $sql = "UPDATE event SET name = ?, description = ?, start_date = ?, end_date = ?, hero_img = ? WHERE id = ?";
-            $stmt = $this->mysqli->prepare($sql);
-            $stmt->bind_param('sssssi',
-                $eventData['name'],
-                $eventData['description'],
-                $eventData['start_date'],
-                $eventData['end_date'],
-                $eventData['hero_image'],
-                $eventData['id']
-            );
-            $stmt->execute();
-
-            /* TODO enable workshop changes
-            $this->deleteWorkshopsForEvent($eventData['id']);
-
-            $this->insertWorkshops($eventData['id'], $workshopNames);
-            */
+            $this->updateEventMain($eventData);
+            $this->insertWorkshops($eventData['id'], $workshopsToAdd);
+            $this->removeWorkshops($eventData['id'], $workshopsToRemove);
 
             $this->mysqli->commit();
         } catch (\mysqli_sql_exception $e) {
             $this->mysqli->rollback();
-            throw new \ServerException("Database error: " . $e->getMessage());
+            throw new \ServerException();
         }
     }
-
-    // TODO test, are workshops getting deleted as well?
     public function deleteEvent(int $eventId): void {
         $sql = "DELETE FROM event WHERE id = ?";
         $stmt = $this->mysqli->prepare($sql);

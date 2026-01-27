@@ -30,6 +30,7 @@ class FrontController {
             case 'register':
             case 'logout':
             case 'settings':
+            case 'delete':
                 $presenter = new p\UsersPresenter();
                 break;
             default:

@@ -1,19 +1,21 @@
 <h1> User Detail </h1>
-<div>
-    <p>
-        <strong>Full Name:</strong> {= $user['full_name']}
-    </p>
-    <p>
-        <strong>Email Address:</strong> {= $user['email']}
-    </p>
-</div>
 
-<form action="/settings" method="POST" enctype="multipart/form-data">
-    <div>
-        <label for="full_name">New name</label>
-        <input type="text" id="full_name" name="full_name" maxlength="255" required>
+<div>
+<form class="entry-form" action="/settings" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+    <label for="full_name">Full Name:</label>
+    <input type="text" id="full_name" name="full_name" value="{= $user['full_name'] }" maxlength="64">
     </div>
+
+    <div class="form-group">
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" value="{= $user['email'] }" maxlength="64" readonly>
+    </div>
+
     <button type="submit">Submit changes</button>
 </form>
 
-TODO delete acc
+<form action="/delete" method="POST" enctype="multipart/form-data">
+    <button type="submit" class="deleteBtn">Delete Account</button>
+</form>
+</div>

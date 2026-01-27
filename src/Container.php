@@ -18,10 +18,6 @@ class Container
         return $this->mysqli;
     }
 
-    public function isLoggedIn(): bool {
-        return isset($_SESSION['user_email']);
-    }
-
     public function getLoggedUser(): ?array {
         if (isset($_SESSION['user_email'])) {
             return [

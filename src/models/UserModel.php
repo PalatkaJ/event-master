@@ -38,9 +38,9 @@ class UserModel {
             $stmt->execute();
         } catch (mysqli_sql_exception $e) {
             if ($e->getCode() === USER_EXISTS_CODE) {
-                throw new \UserAlreadyExistsException("Email already exists.");
+                throw new \UserAlreadyExistsException();
             }
-            throw new \ServerException("Database error: " . $e->getMessage());
+            throw new \ServerException();
         }
     }
 
@@ -52,7 +52,14 @@ class UserModel {
             $stmt->execute();
 
         } catch (\mysqli_sql_exception $e) {
-            throw new \ServerException("Database error: " . $e->getMessage());
+            throw new \ServerException();
         }
+    }
+
+    public function deleteUser(string $email): void {
+        $sql = "DELETE FROM user WHERE email = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace presenters;
 
+use Cassandra\Exception\UnauthorizedException;
+use NotFoundException;
 use src\Container;
 
 require_once __DIR__.'/Templator.php';
@@ -19,6 +21,16 @@ abstract class BasePresenter implements IPresenter
 
     public function __construct() {
         $this->templator = new Templator();
+    }
+
+    protected function requireLogin(): array {
+        $currentUser = $this->container->getLoggedUser();
+
+        if (!isset($currentUser)) {
+            throw new \UnathorizedAccessException();
+        }
+
+        return $currentUser;
     }
 
     public abstract function process(array $url, string $requestMethod, mixed $data, mixed $files): void;

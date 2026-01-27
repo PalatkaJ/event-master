@@ -11,9 +11,7 @@ class RegistrationModel
     }
 
     private function deleteWorkshops(string $email, int $eventId) {
-        $deleteSql = "DELETE wr FROM workshop_registration wr 
-                      JOIN workshop w ON wr.workshop_id = w.id 
-                      WHERE wr.user_email = ? AND w.event_id = ?";
+        $deleteSql = "DELETE FROM workshop_registration WHERE user_email = ? AND event_id = ?";
         $delStmt = $this->mysqli->prepare($deleteSql);
         $delStmt->bind_param('si', $email, $eventId);
         $delStmt->execute();
@@ -26,12 +24,12 @@ class RegistrationModel
         $stmt->execute();
     }
 
-    private function registerUserForWorkshops(string $email, array $workshopIds) {
+    private function registerUserForWorkshops(string $email, array $workshopIds, int $eventId) {
         if (!empty($workshopIds)) {
-            $stmtW = $this->mysqli->prepare("INSERT INTO workshop_registration (user_email, workshop_id) VALUES (?, ?)");
+            $stmtW = $this->mysqli->prepare("INSERT INTO workshop_registration (user_email, workshop_id, event_id) VALUES (?, ?, ?)");
             foreach ($workshopIds as $wId) {
                 $wIdInt = (int)$wId;
-                $stmtW->bind_param('si', $email, $wIdInt);
+                $stmtW->bind_param('sii', $email, $wIdInt, $eventId);
                 $stmtW->execute();
             }
         }
@@ -42,12 +40,12 @@ class RegistrationModel
         try {
             $this->registerUserToEvent($email, $eventId);
             $this->deleteWorkshops($email, $eventId);
-            $this->registerUserForWorkshops($email, $workshopIds);
+            $this->registerUserForWorkshops($email, $workshopIds, $eventId);
 
             $this->mysqli->commit();
         } catch (\Exception $e) {
             $this->mysqli->rollback();
-            throw $e;
+            throw new \ServerException();
         }
     }
 
@@ -62,5 +60,12 @@ class RegistrationModel
         $stmt->execute();
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function cancelUsersRegistration(string $email, int $eventId): void {
+        $sql = "DELETE er FROM event_registration er where er.user_email = ? and er.event_id = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('si', $email, $eventId);
+        $stmt->execute();
     }
 }

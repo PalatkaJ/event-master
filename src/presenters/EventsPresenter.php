@@ -1,7 +1,5 @@
 <?php
 
-// TODO always check the current user (e.g. if he can delete the event)
-
 namespace presenters;
 
 use models as m;
@@ -18,21 +16,11 @@ class EventsPresenter extends BasePresenter
 
     private m\RegistrationModel $registrationModel;
 
-    private function requireLogin(): array {
-        $currentUser = $this->container->getLoggedUser();
-
-        if (!isset($currentUser)) {
-            throw new NotFoundException("requires logged in user");
-        }
-
-        return $currentUser;
-    }
-
     private function getSafeEvent(int $id): array {
         $event = $this->eventModel->getEventById($id);
 
         if (!isset($event)) {
-            throw new NotFoundException("event not found");
+            throw new NotFoundException();
         }
 
         return $event;
@@ -83,7 +71,7 @@ class EventsPresenter extends BasePresenter
         if (move_uploaded_file($files['hero_image']['tmp_name'], $destinationPath)) {
             return $randomName;
         } else {
-            throw new \ServerException("Could not save the uploaded image.");
+            throw new \ServerException();
         }
     }
 
@@ -102,10 +90,10 @@ class EventsPresenter extends BasePresenter
                 break;
             case 'POST':
                 $this->createEvent($currentUser, $data, $files);
-                header("Location: " . BASE_URL . "/events");
+                header("Location: " . BASE_URL . "/");
                 exit;
             default:
-                throw new NotFoundException("invalid method");
+                throw new NotFoundException();
         }
     }
 
@@ -119,7 +107,12 @@ class EventsPresenter extends BasePresenter
         $event['end_date'] = $data['end_date'] ?? $event['end_date'];
         $event['hero_image'] = $randomName ?? $event['hero_image'];
 
-        $this->eventModel->updateEvent($event, $data['workshops']);
+        $newWorkshops = $data['workshops'] ?? [];
+        $currentWorkshops = array_column($event['workshops'], 'name');
+        $workshopsToAdd = array_diff($newWorkshops, $currentWorkshops);
+        $workshopsToRemove = array_diff($currentWorkshops, $newWorkshops);
+
+        $this->eventModel->updateEvent($event, $workshopsToAdd, $workshopsToRemove);
     }
 
     private function processEventEdit(int $id, string $reqMethod, array $data, array $files): void {
@@ -127,12 +120,12 @@ class EventsPresenter extends BasePresenter
         $event = $this->getSafeEvent($id);
 
         if (!$this->isCurrentUserOrganizer($id)) {
-            throw new NotFoundException("unauthorized access");
+            throw new \UnathorizedAccessException();
         }
 
+        $event['workshops'] = $this->eventModel->getWorkshopsForEvent($event['id']);
         switch ($reqMethod) {
             case 'GET':
-                $event['workshops'] = $this->eventModel->getWorkshopsForEvent($event['id']);
                 $this->templateData['event'] = $event;
                 $this->templateFilename = 'event_update.php';
                 break;
@@ -162,10 +155,10 @@ class EventsPresenter extends BasePresenter
                 break;
             case 'POST':
                 $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
-                header("Location: " . BASE_URL . "/events");
+                header("Location: " . BASE_URL . "/events/mine");
                 exit;
             default:
-                throw new NotFoundException("invalid method");
+                throw new NotFoundException();
         }
     }
 
@@ -201,7 +194,8 @@ class EventsPresenter extends BasePresenter
         $events = $this->eventModel->getAllEvents();
         $this->addOrganizerToEvents($events);
 
-        $this->templateData['events'] = $events;
+        //$this->templateData['events'] = $events;
+        $this->templateData['events_json'] = json_encode($events);
         $this->templateFilename = 'all_events.php';
     }
 
@@ -217,16 +211,26 @@ class EventsPresenter extends BasePresenter
 
     private function processEventDeletion(int $id, string $reqMethod): void {
         if ($reqMethod !== 'POST') {
-            throw new NotFoundException("invalid method");
+            throw new NotFoundException();
         }
 
         $this->requireLogin();
         if (!$this->isCurrentUserOrganizer($id)) {
-            throw new NotFoundException("unauthorized access");
+            throw new \UnathorizedAccessException();
         }
 
         $this->eventModel->deleteEvent($id);
-        header("Location: " . BASE_URL . "/events/");
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    private function processRegistrationCancel(int $eventId): void {
+        $currentUser = $this->requireLogin();
+        $event = $this->getSafeEvent($eventId);
+
+        $this->registrationModel->cancelUsersRegistration($currentUser['email'], $eventId);
+
+        header("Location: " . BASE_URL . "/events/" . $event['id']);
         exit;
     }
 
@@ -262,8 +266,11 @@ class EventsPresenter extends BasePresenter
             case 'delete':
                 $this->processEventDeletion($id, $reqMethod);
                 break;
+            case 'cancel':
+                $this->processRegistrationCancel($id);
+                break;
             default:
-                throw new NotFoundException("invalid url");
+                throw new NotFoundException();
         }
     }
 

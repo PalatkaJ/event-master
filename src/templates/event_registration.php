@@ -1,28 +1,21 @@
 <h1>Register for: {= $event['name'] }</h1>
 
-<form action="{= BASE_URL }/events/{= $event['id'] }/register" method="POST">
+<form class="entry-form" action="{= BASE_URL }/events/{= $event['id'] }/register" method="POST" enctype="multipart/form-data">
+    <fieldset>
+        <legend>Available Workshops</legend>
+        <div id="workshops-list">
+            {foreach $event['workshops'] as $workshop}
+            <span class="workshop-entry">
+                <label>
+                    <input type="checkbox" name="workshops[]" value="{= $workshop['id'] }"
+                        {if in_array($workshop['id'], $registeredIds)} checked {/if}>{= $workshop['name'] }
+                </label>
+            </span>
+            {/foreach}
+        </div>
+    </fieldset>
 
-    <h3>Available Workshops</h3>
-    <p>Select the workshops you wish to attend:</p>
-
-    {foreach $event['workshops'] as $workshop}
-    <div>
-        <label>
-            <input type="checkbox"
-                   name="workshops[]"
-                   value="{= $workshop['id'] }"
-                   {if in_array($workshop['id'], $registeredIds)} checked {/if}>
-            {= $workshop['name'] }
-        </label>
-    </div>
-    {/foreach}
-
-    <br>
     <button type="submit">
-        Confirm
+        Register for Event
     </button>
 </form>
-
-<p>
-    <a href="{= BASE_URL }/events/{= $event['id'] }">Back to Event Detail</a>
-</p>

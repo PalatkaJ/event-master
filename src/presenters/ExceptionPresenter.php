@@ -12,16 +12,8 @@ class ExceptionPresenter extends BasePresenter
     }
 
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void {
-        if ($this->exception instanceof \NotFoundException) {
-            http_response_code(404);
-        }
-        elseif ($this->exception instanceof \ServerException) {
-            http_response_code(500);
-        }
-        else {
-            http_response_code(500);
-        }
-
+        http_response_code($this->exception->getCode());
+        $this->templateData['error_code'] = $this->exception->getCode();
         $this->templateData['error_msg'] = $this->exception->getMessage();
         $this->templateFilename = 'error.php';
     }
