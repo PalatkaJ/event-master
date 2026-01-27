@@ -36,6 +36,10 @@
     <button type="submit">Save Changes</button>
 </form>
 
+<form action="{=BASE_URL}/events/{=$event['id']}/delete" method="POST" enctype="multipart/form-data">
+    <button type="submit">Delete Event</button>
+</form>
+
 <script>
     function addWorkshop() {
         const container = document.getElementById('workshops-container');

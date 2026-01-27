@@ -31,7 +31,7 @@
         {/if}
 
         {if $isRegistered && !$isOwner}
-    <form action="{=BASE_URL}/events/{=$event['id']}/delete" method="POST" enctype="multipart/form-data">
+    <form action="{=BASE_URL}/events/{=$event['id']}/cancel" method="POST" enctype="multipart/form-data">
         <button type="submit">Cancel Registration</button>
     </form>
         {/if}

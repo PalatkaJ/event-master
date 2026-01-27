@@ -178,7 +178,7 @@ class EventsPresenter extends BasePresenter
 
         $currentUsersEvents = $this->eventModel->getAllEventsUsers($currentUser['email']);
         foreach ($currentUsersEvents as $e) {
-            if ($e['id'] === (string)$eventId) {
+            if ($e['id'] == $eventId) {
                 return true;
             }
         }
