@@ -56,24 +56,30 @@ class FormValidator {
         }
     }
 
-    public function validateWorkshops(array $workshops) {
-        if (empty($workshops) || !is_array($workshops)) {
+    public function validateWorkshops(array $data) {
+        if (!isset($data['workshops'])) {
+            $this->errors['workshops'] = "At least one workshop is required.";
+            return;
+        }
+
+        $workshopNames = $data['workshops'];
+        if (empty($workshopNames) || !is_array($workshopNames)) {
             $this->errors['workshops'] = "At least one workshop is required.";
         } else {
-            foreach ($workshops as $wName) {
+            foreach ($workshopNames as $wName) {
                 $this->validateWorkshopName($wName);
             }
         }
     }
 
-    public function validateEvent(array $data, array $workshops): void {
-        $this->validateEventName($data['name']);
-        $this->validateEventDescription($data['description']);
-        $this->validateDates($data);
+    public function validateEvent(array $event, array $data): void {
+        $this->validateEventName($event['name']);
+        $this->validateEventDescription($event['description']);
+        $this->validateDates($event);
 
-        $this->validateImage($data);
+        $this->validateImage($event);
 
-        $this->validateWorkshops($workshops);
+        $this->validateWorkshops($data);
     }
 
 

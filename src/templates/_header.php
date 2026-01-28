@@ -32,9 +32,9 @@
     <div class="error-container">
         <strong>Please fix the following:</strong>
         <ul>
-            { foreach ($errors as $field => $message)}
+            {foreach $errors as $message}
                 <li>{= $message }</li>
-            { /foreach }
+            {/foreach}
         </ul>
     </div>
     {/if}

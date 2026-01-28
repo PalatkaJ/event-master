@@ -85,8 +85,8 @@ class EventsPresenter extends BasePresenter
         }
     }
 
-    private function isEventFormValid(array $event, array $workshops): bool {
-        $this->formValidator->validateEvent($event, $workshops);
+    private function isEventFormValid(array $event, array $data): bool {
+        $this->formValidator->validateEvent($event, $data);
         return $this->formValidator->isValid();
     }
 
@@ -104,7 +104,7 @@ class EventsPresenter extends BasePresenter
             case 'GET':
                 break;
             case 'POST':
-                if (!$this->isEventFormValid($data, $data['workshops'])) {
+                if (!$this->isEventFormValid($data, $data)) {
                     $this->templateData['errors'] = $this->formValidator->getErrors();
                     return;
                 }
@@ -144,14 +144,15 @@ class EventsPresenter extends BasePresenter
         }
 
         $event['workshops'] = $this->eventModel->getWorkshopsForEvent($event['id']);
+        $this->templateData['event'] = $event;
         $this->templateFilename = 'event_update.php';
+
         switch ($reqMethod) {
             case 'GET':
-                $this->templateData['event'] = $event;
                 break;
             case 'POST':
                 $this->parseDataToEvent($data, $files, $event);
-                if (!$this->isEventFormValid($event, $data['workshops'])) {
+                if (!$this->isEventFormValid($event, $data)) {
                     $this->templateData['errors'] = $this->formValidator->getErrors();
                     return;
                 }
@@ -162,24 +163,31 @@ class EventsPresenter extends BasePresenter
         }
     }
 
-    private function processEventRegistrationGet(int $id, array $currentUser): void {
+    private function areWorkshopsValid(array $data): bool {
+        $this->formValidator->validateWorkshops($data);
+        return $this->formValidator->isValid();
+    }
+
+    private function processEventRegistration(string $id, string $reqMethod, mixed $data): void {
+        $currentUser = $this->requireLogin();
         $event = $this->getSafeEvent($id);
+
         $event['workshops'] = $this->eventModel->getWorkshopsForEvent($id);
         $registeredWorkshops = $this->registrationModel->getUserRegisteredWorkshops($currentUser['email'], $id);
 
         $this->templateData['event'] = $event;
         $this->templateData['registeredIds'] = array_column($registeredWorkshops, 'id');
         $this->templateFilename = 'event_registration.php';
-    }
-
-    private function processEventRegistration(string $id, string $reqMethod, mixed $data): void {
-        $currentUser = $this->requireLogin();
 
         switch ($reqMethod) {
             case 'GET':
-                $this->processEventRegistrationGet($id, $currentUser);
                 break;
             case 'POST':
+                if (!$this->areWorkshopsValid($data)) {
+                    $this->templateData['errors'] = $this->formValidator->getErrors();
+                    return;
+                }
+
                 $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
                 header("Location: " . BASE_URL . "/events/mine");
                 exit;
@@ -283,7 +291,6 @@ class EventsPresenter extends BasePresenter
 
         switch ($url[1]) {
             case 'edit':
-                $data['is_edit'] = true;
                 $this->processEventEdit($id, $reqMethod, $data, $files);
                 break;
             case 'register':
