@@ -1,5 +1,5 @@
 <h1>Register</h1>
-<form class="entry-form" action="/register" method="POST" enctype="multipart/form-data">
+<form class="entry-form" action="{= BASE_URL }/register" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" maxlength="255" required>

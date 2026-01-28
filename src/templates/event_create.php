@@ -1,5 +1,5 @@
 <h1>Event Creation</h1>
-<form class="entry-form" action="/events/new" method="POST" enctype="multipart/form-data">
+<form class="entry-form" action="{= BASE_URL }/events/new" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <label for="name">Event Name:</label>
         <input type="text" id="name" name="name" maxlength="64" required>
