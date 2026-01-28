@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 
 session_start();
 
-define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
+define('BASE_URL', rtrim(str_replace('/public', '', dirname($_SERVER['SCRIPT_NAME'])), '/'));
 define('APP_ROOT', dirname(__DIR__));
 
 const SRC_DIR = APP_ROOT.'/src';
