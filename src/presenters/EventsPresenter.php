@@ -220,7 +220,6 @@ class EventsPresenter extends BasePresenter
         $events = $this->eventModel->getAllEvents();
         $this->addOrganizerToEvents($events);
 
-        //$this->templateData['events'] = $events;
         $this->templateData['events_json'] = json_encode($events);
         $this->templateFilename = 'all_events.php';
     }
