@@ -13,4 +13,10 @@ export class EventModel {
     getTotalPages() {
         return Math.ceil(this.events.length / this.pageSize);
     }
+
+    getEventsWithName(name) {
+        if (name === '') return this.events;
+
+        return this.events.filter(event => event.name.includes(name));
+    }
 }

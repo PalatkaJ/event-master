@@ -47,4 +47,22 @@
     </form>
         {/if}
     {/if}
+
+    {if isset($event['recommended_event'])}
+    <div class="event-card">
+        <h2> {= $event['recommended_event']['name']} </h2>
+
+        <div class="detail-group">
+            <span class="fake-label">start:</span>
+            <p>{= $event['recommended_event']['start_date'] }</p>
+        </div>
+
+        <div class="detail-group">
+            <span class="fake-label">end:</span>
+            <p>{= $event['recommended_event']['end_date'] }</p>
+        </div>
+
+        <a href="{= BASE_URL}/events/{=$event['recommended_event']['id']}">Event Detail</a>
+    </div>
+    {/if}
 </div>

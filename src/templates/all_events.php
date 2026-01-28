@@ -17,4 +17,4 @@
 <script type="module" src="{= BASE_URL }/js/events/EventModel.js"></script>
 <script type="module" src="{= BASE_URL }/js/events/EventView.js"></script>
 <script type="module" src="{= BASE_URL }/js/events/EventPresenter.js"></script>
-<script type="module" src="{= BASE_URL }/js/pagination.js"></script>
+<script type="module" src="{= BASE_URL }/js/eventsBootstrap.js"></script>

@@ -24,3 +24,4 @@
     <a href="{= BASE_URL}/events/{=$event['id']}">Event Detail</a>
 </div>
 {/foreach}
+</div>

@@ -18,7 +18,7 @@ class View {
         try {
             $this->templator->loadTemplate($path);
             $this->templator->compileAndSave($compiled);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo "Template Error: " . $e->getMessage();
             exit(1);
         }

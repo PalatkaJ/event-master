@@ -38,12 +38,30 @@
         </div>
         <button type="button" id="add-workshop-w-del-btn" class="add-btn">+</button>
     </fieldset>
+
+    <div class="form-group">
+        <label for="recommended_event">Recommended Event:</label>
+        <input type="search" id="recommended_event" name="recommended_event">
+        <input type="hidden" id="recommended_event_id" name="recommended_event_id">
+        <div class="event-list">
+        </div>
+    </div>
+
     <button type="submit">Save Changes</button>
 </form>
 
 <form action="{=BASE_URL}/events/{=$event['id']}/delete" method="POST">
     <button type="submit" class="deleteBtn">Delete Event</button>
 </form>
+<script>
+    const allEvents = <?php echo $events_json ?? '[]';?>;
+    const BASE_URL = '<?php echo BASE_URL; ?>';
+</script>
 
 <script type="module" src="{= BASE_URL }/js/workshops.js"></script>
 <script type="module" src="{= BASE_URL }/js/eventValidation.js"></script>
+
+<script type="module" src="{= BASE_URL }/js/events/EventModel.js"></script>
+<script type="module" src="{= BASE_URL }/js/events/SearchView.js"></script>
+<script type="module" src="{= BASE_URL }/js/events/SearchPresenter.js"></script>
+<script type="module" src="{= BASE_URL }/js/searchBootstrap.js"></script>

@@ -138,6 +138,13 @@ class EventModel {
         }
     }
 
+    private function addRecommendedToEvent(int $eventId, int $recId): void {
+        $sql = "UPDATE event SET recommended_event_id = ? WHERE id = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('ii', $recId, $eventId);
+        $stmt->execute();
+    }
+
     public function updateEvent(array $eventData, array $workshopsToAdd, array $workshopsToRemove): void {
         $this->mysqli->begin_transaction();
 
@@ -145,6 +152,10 @@ class EventModel {
             $this->updateEventMain($eventData);
             $this->insertWorkshops($eventData['id'], $workshopsToAdd);
             $this->removeWorkshops($eventData['id'], $workshopsToRemove);
+
+            if (isset($eventData['recommended_event_id'])) {
+                $this->addRecommendedToEvent($eventData['id'], $eventData['recommended_event_id']);
+            }
 
             $this->mysqli->commit();
         } catch (\mysqli_sql_exception $e) {

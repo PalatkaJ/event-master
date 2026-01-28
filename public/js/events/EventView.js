@@ -7,15 +7,19 @@ export class EventView {
     }
 
     setNextButtonHandler(handler) {
-        this.nextButton.addEventListener('click', (e) => {
-            handler(e);
-        });
+        if (this.nextButton !== null) {
+            this.nextButton.addEventListener('click', (e) => {
+                handler(e);
+            });
+        }
     }
 
     setPrevButtonHandler(handler) {
-        this.previousButton.addEventListener('click', (e) => {
-            handler(e);
-        });
+        if (this.previousButton !== null) {
+            this.previousButton.addEventListener('click', (e) => {
+                handler(e);
+            });
+        }
     }
 
     createEventCard(event) {
@@ -47,13 +51,15 @@ export class EventView {
     }
 
     renderEvents(events, pageNr, maxPages) {
-        this.eventsList.innerHTML = '';
+        if (this.previousButton !== null) {
+            this.eventsList.innerHTML = '';
 
-        events.forEach(event => {
-            const card = this.createEventCard(event);
-            this.eventsList.appendChild(card);
-        });
+            events.forEach(event => {
+                const card = this.createEventCard(event);
+                this.eventsList.appendChild(card);
+            });
 
-        this.pageNr.textContent = 'Page ' + pageNr + ' of ' + maxPages;
+            this.pageNr.textContent = 'Page ' + pageNr + ' of ' + maxPages;
+        }
     }
 }

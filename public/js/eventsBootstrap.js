@@ -8,8 +8,6 @@ function bootstrap() {
 
     const eventPresenter = new EventPresenter(eventModel, eventView);
     eventPresenter.initialize();
-
-    console.log(allEvents);
 }
 
 window.addEventListener("DOMContentLoaded", () => bootstrap());

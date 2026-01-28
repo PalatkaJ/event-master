@@ -108,6 +108,7 @@ class EventsPresenter extends BasePresenter
                     $this->templateData['errors'] = $this->formValidator->getErrors();
                     return;
                 }
+
                 $this->createEvent($currentUser, $data, $files);
                 header("Location: " . BASE_URL . "/");
                 exit;
@@ -144,6 +145,9 @@ class EventsPresenter extends BasePresenter
         }
 
         $event['workshops'] = $this->eventModel->getWorkshopsForEvent($event['id']);
+
+        $allEvents = $this->eventModel->getAllEvents();
+        $this->templateData['events_json'] = json_encode($allEvents);
         $this->templateData['event'] = $event;
         $this->templateFilename = 'event_update.php';
 
@@ -155,6 +159,15 @@ class EventsPresenter extends BasePresenter
                 if (!$this->isEventFormValid($event, $data, $files)) {
                     $this->templateData['errors'] = $this->formValidator->getErrors();
                     return;
+                }
+
+                if (isset($data['recommended_event_id'])) {
+                    $recommendedEvent = $this->eventModel->getEventById((int)$data['recommended_event_id']);
+                    if ($recommendedEvent === null) {
+                        $this->templateData['errors'][] = "Event recommended not found.";
+                        return;
+                    }
+                    $event['recommended_event_id'] = $recommendedEvent['id'];
                 }
 
                 $this->updateEvent($event, $data);
@@ -189,7 +202,8 @@ class EventsPresenter extends BasePresenter
                 }
 
                 $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
-                header("Location: " . BASE_URL . "/events/mine");
+                //header("Location: " . BASE_URL . "/events/mine");
+                header("Location: " . BASE_URL . "/events/recommended");
                 exit;
             default:
                 throw new src\NotFoundException();
@@ -220,6 +234,11 @@ class EventsPresenter extends BasePresenter
 
         $this->templateData['isOwner'] = $this->isCurrentUserOrganizer($id);
         $this->templateData['isRegistered'] = $this->isCurrentUserRegistered($id);
+
+        if (isset($event['recommended_event_id'])) {
+            $event['recommended_event'] = $this->eventModel->getEventById($event['recommended_event_id']);
+        }
+
         $this->templateData['event'] = $event;
         $this->templateFilename = 'event_detail.php';
     }
@@ -267,6 +286,22 @@ class EventsPresenter extends BasePresenter
         exit;
     }
 
+    private function processRecommendedEvents() {
+        $currentUser = $this->requireLogin();
+        $usersEvents = $this->eventModel->getAllEventsUsers($currentUser['email']);
+        $usersEventsIds = array_column($usersEvents, 'id');
+
+        $recommendedEvents = [];
+        foreach ($usersEvents as $e) {
+            if (isset($e['recommended_event_id']) && !in_array($e['recommended_event_id'], $usersEventsIds)) {
+                $recommendedEvents[] = $this->eventModel->getEventById($e['recommended_event_id']);
+            }
+        }
+
+        $this->templateData['events'] = $recommendedEvents;
+        $this->templateFilename = 'recommended_events.php';
+    }
+
     private function processEventSub(array $url, string $reqMethod, mixed $data, mixed $files): void {
         // base/events/new or mine or ...
         if (!is_numeric($url[0])) {
@@ -276,6 +311,9 @@ class EventsPresenter extends BasePresenter
                     break;
                 case 'mine':
                     $this->processEventsAllUsers();
+                    break;
+                case 'recommended':
+                    $this->processRecommendedEvents();
                     break;
             }
             return;
