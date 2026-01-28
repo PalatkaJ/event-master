@@ -133,7 +133,7 @@ class EventModel {
 
         foreach ($workshopsToRemove as $name) {
             $name = trim($name);
-            $stmt->bind_param('ss', $name, $eventId);
+            $stmt->bind_param('si', $name, $eventId);
             $stmt->execute();
         }
     }
