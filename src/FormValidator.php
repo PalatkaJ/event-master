@@ -35,7 +35,7 @@ class FormValidator {
         $start = !empty($data['start_date']) ? new DateTime($data['start_date']) : null;
         $end = !empty($data['end_date']) ? new DateTime($data['end_date']) : null;
 
-        if (!$start || $start <= $today) {
+        if (!$start || $start < $today) {
             $this->errors['start_date'] = "Start date must be in the future.";
         }
 
@@ -44,8 +44,14 @@ class FormValidator {
         }
     }
 
-    public function validateImage(array $data) {
-        if ($data['hero_image'] === null) {
+    public function validateImage(array $data, mixed $files) {
+        $hasExistingImage = isset($data['hero_image']) && !empty($data['hero_image']);
+
+        $hasNewUpload = isset($files['hero_image']) &&
+            $files['hero_image']['error'] === UPLOAD_ERR_OK &&
+            !empty($files['hero_image']['name']);
+
+        if (!$hasExistingImage && !$hasNewUpload) {
             $this->errors['hero_image'] = "Hero image is required.";
         }
     }
@@ -72,12 +78,12 @@ class FormValidator {
         }
     }
 
-    public function validateEvent(array $event, array $data): void {
+    public function validateEvent(array $event, array $data, mixed $files): void {
         $this->validateEventName($event['name']);
         $this->validateEventDescription($event['description']);
         $this->validateDates($event);
 
-        $this->validateImage($event);
+        $this->validateImage($event, $files);
 
         $this->validateWorkshops($data);
     }

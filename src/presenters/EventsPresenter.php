@@ -85,8 +85,8 @@ class EventsPresenter extends BasePresenter
         }
     }
 
-    private function isEventFormValid(array $event, array $data): bool {
-        $this->formValidator->validateEvent($event, $data);
+    private function isEventFormValid(array $event, array $data, mixed $files): bool {
+        $this->formValidator->validateEvent($event, $data, $files);
         return $this->formValidator->isValid();
     }
 
@@ -104,7 +104,7 @@ class EventsPresenter extends BasePresenter
             case 'GET':
                 break;
             case 'POST':
-                if (!$this->isEventFormValid($data, $data)) {
+                if (!$this->isEventFormValid($data, $data, $files)) {
                     $this->templateData['errors'] = $this->formValidator->getErrors();
                     return;
                 }
@@ -152,7 +152,7 @@ class EventsPresenter extends BasePresenter
                 break;
             case 'POST':
                 $this->parseDataToEvent($data, $files, $event);
-                if (!$this->isEventFormValid($event, $data)) {
+                if (!$this->isEventFormValid($event, $data, $files)) {
                     $this->templateData['errors'] = $this->formValidator->getErrors();
                     return;
                 }
