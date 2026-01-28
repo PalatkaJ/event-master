@@ -2,7 +2,6 @@
 
 namespace src;
 
-use NotFoundException;
 use presenters as p;
 
 require_once __DIR__.'/Exceptions.php';

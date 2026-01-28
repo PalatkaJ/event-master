@@ -28,3 +28,13 @@
     </nav>
 </header>
 <main>
+    {if !empty($errors)}
+    <div class="error-container">
+        <strong>Please fix the following:</strong>
+        <ul>
+            { foreach ($errors as $field => $message)}
+                <li>{= $message }</li>
+            { /foreach }
+        </ul>
+    </div>
+    {/if}

@@ -1,12 +1,12 @@
 <h1>Event Creation</h1>
 <form class="entry-form" action="/events/new" method="POST" enctype="multipart/form-data">
     <div class="form-group">
-        <label for="name">Event Name (max 64 chars):</label>
+        <label for="name">Event Name:</label>
         <input type="text" id="name" name="name" maxlength="64" required>
     </div>
 
     <div class="form-group">
-        <label for="description">Description (max 1024 chars):</label>
+        <label for="description">Description:</label>
         <textarea id="description" name="description" maxlength="1024" rows="4" required></textarea>
     </div>
 
