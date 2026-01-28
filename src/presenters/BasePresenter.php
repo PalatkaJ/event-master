@@ -2,7 +2,6 @@
 
 namespace presenters;
 
-use Cassandra\Exception\UnauthorizedException;
 use src;
 
 require_once SRC_DIR.'/FormValidator.php';

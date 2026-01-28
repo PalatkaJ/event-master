@@ -205,7 +205,7 @@ class EventsPresenter extends BasePresenter
 
         $currentUsersEvents = $this->eventModel->getAllEventsUsers($currentUser['email']);
         foreach ($currentUsersEvents as $e) {
-            if ($e['id'] == $eventId) {
+            if ($e['id'] === $eventId) {
                 return true;
             }
         }
@@ -284,7 +284,7 @@ class EventsPresenter extends BasePresenter
         // base/events/id/...
         $id = $url[0];
 
-        if (sizeof($url) == 1) {
+        if (sizeof($url) === 1) {
             $this->processEventDetail($id);
             return;
         }
