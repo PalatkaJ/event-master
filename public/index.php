@@ -22,6 +22,7 @@ require_once APP_ROOT . '/src/Container.php';
 require_once APP_ROOT . '/.config.php';
 
 function main(): void {
+    var_dump(BASE_URL);
     global $DB_CONFIG;
 
     $fc = new FrontController();

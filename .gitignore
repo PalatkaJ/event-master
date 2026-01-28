@@ -8,5 +8,4 @@
 !public/.htaccess
 
 src/db.json
-src/temp/
 /specification.md
