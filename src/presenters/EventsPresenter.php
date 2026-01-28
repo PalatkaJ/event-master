@@ -202,7 +202,6 @@ class EventsPresenter extends BasePresenter
                 }
 
                 $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
-                //header("Location: " . BASE_URL . "/events/mine");
                 header("Location: " . BASE_URL . "/events/recommended");
                 exit;
             default:
@@ -286,17 +285,29 @@ class EventsPresenter extends BasePresenter
         exit;
     }
 
-    private function processRecommendedEvents() {
-        $currentUser = $this->requireLogin();
-        $usersEvents = $this->eventModel->getAllEventsUsers($currentUser['email']);
-        $usersEventsIds = array_column($usersEvents, 'id');
+    private function shouldAddEventToRecommended(int $eventId, array $usersEventsIds, $recommendedEvents): bool {
+        return !in_array($eventId, $usersEventsIds)
+        && !in_array($eventId, array_column($recommendedEvents, 'id'));
+    }
 
+    private function getRecommendedEvents(array $usersEvents): array {
+        $usersEventsIds = array_column($usersEvents, 'id');
         $recommendedEvents = [];
+
         foreach ($usersEvents as $e) {
-            if (isset($e['recommended_event_id']) && !in_array($e['recommended_event_id'], $usersEventsIds)) {
+            if (isset($e['recommended_event_id']) && $this->shouldAddEventToRecommended($e['recommended_event_id'], $usersEventsIds, $recommendedEvents)) {
                 $recommendedEvents[] = $this->eventModel->getEventById($e['recommended_event_id']);
             }
         }
+
+        return $recommendedEvents;
+    }
+
+    private function processRecommendedEvents() {
+        $currentUser = $this->requireLogin();
+        $usersEvents = $this->eventModel->getAllEventsUsers($currentUser['email']);
+
+        $recommendedEvents = $this->getRecommendedEvents($usersEvents);
 
         $this->templateData['events'] = $recommendedEvents;
         $this->templateFilename = 'recommended_events.php';

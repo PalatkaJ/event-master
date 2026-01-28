@@ -41,9 +41,9 @@
 
     <div class="form-group">
         <label for="recommended_event">Recommended Event:</label>
-        <input type="search" id="recommended_event" name="recommended_event">
+        <input type="text" id="recommended_event" name="recommended_event">
         <input type="hidden" id="recommended_event_id" name="recommended_event_id">
-        <div class="event-list">
+        <div class="event-btn-list">
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 export class SearchView {
     constructor() {
-        this.eventsList = document.querySelector('.event-list');
+        this.eventsList = document.querySelector('.event-btn-list');
         this.searchInput = document.getElementById('recommended_event');
         this.idInput = document.getElementById('recommended_event_id');
     }
@@ -12,26 +12,21 @@ export class SearchView {
     }
 
     createSmallEventCard(event) {
-        const item = document.createElement('div');
-        item.className = 'event-card';
 
-        const link = document.createElement('button');
-        link.textContent = event.name;
-        item.appendChild(link);
+        const btn = document.createElement('button');
+        btn.textContent = event.name;
+        btn.classList.add('event-btn');
 
-        link.addEventListener('click', (e) => {
+        btn.addEventListener('click', (e) => {
             e.preventDefault();
             this.searchInput.value = event.name;
             this.idInput.value = event.id;
         })
 
-        return item;
+        return btn;
     }
 
     renderSearchEvents(events) {
-        console.log("rendering...:");
-        console.log(events);
-
         this.eventsList.innerHTML = '';
         events.forEach(event => {
             const card = this.createSmallEventCard(event);

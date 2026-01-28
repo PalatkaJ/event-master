@@ -77,6 +77,16 @@ main {
     justify-content: flex-start;
 }
 
+.event-btn-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.event-btn {
+    margin: 10px;
+}
+
 .event-card, .error-card {
     background-color: #fff;
     border-radius: 8px;

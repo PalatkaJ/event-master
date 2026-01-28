@@ -31,24 +31,35 @@
 
     {if isset($user['email'])}
         {if $isOwner}
+    <div class="detail-group">
+        <span class="fake-label">Edit Event:</span>
     <form action="{=BASE_URL}/events/{=$event['id']}/edit" method="GET">
-        <button type="submit">Edit Event</button>
+        <button type="submit">Edit</button>
     </form>
+    </div>
         {/if}
         {if !$isRegistered && !$isOwner}
+    <div class="detail-group">
+        <span class="fake-label">Register for Event:</span>
     <form action="{=BASE_URL}/events/{=$event['id']}/register" method="GET">
-        <button type="submit">Register for Event</button>
+        <button type="submit">Register</button>
     </form>
+    </div>
         {/if}
 
         {if $isRegistered && !$isOwner}
+    <div class="detail-group">
+        <span class="fake-label">Cancel Registration:</span>
     <form action="{=BASE_URL}/events/{=$event['id']}/cancel" method="POST" enctype="multipart/form-data">
-        <button type="submit" class="deleteBtn">Cancel Registration</button>
+        <button type="submit" class="deleteBtn">Cancel</button>
     </form>
+    </div>
         {/if}
     {/if}
 
     {if isset($event['recommended_event'])}
+    <div class="detail-group">
+        <span class="fake-label stacked">Recommended Event:</span>
     <div class="event-card">
         <h2> {= $event['recommended_event']['name']} </h2>
 
@@ -63,6 +74,7 @@
         </div>
 
         <a href="{= BASE_URL}/events/{=$event['recommended_event']['id']}">Event Detail</a>
+    </div>
     </div>
     {/if}
 </div>
