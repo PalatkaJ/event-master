@@ -161,7 +161,7 @@ class EventsPresenter extends BasePresenter
                     return;
                 }
 
-                if (isset($data['recommended_event_id'])) {
+                if (isset($data['recommended_event_id']) && $data['recommended_event_id'] !== "") {
                     $recommendedEvent = $this->eventModel->getEventById((int)$data['recommended_event_id']);
                     if ($recommendedEvent === null) {
                         $this->templateData['errors'][] = "Event recommended not found.";
