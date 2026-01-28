@@ -12,7 +12,7 @@
 
     <div class="form-group">
         <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" required>
+        <input type="date" id="start_date" name="start_date" min="{= date('Y-m-d')}" required>
     </div>
 
     <div class="form-group">
@@ -33,10 +33,11 @@
             </div>
         </div>
 
-        <button type="button" id="add-workshop-btn">+ Add</button>
+        <button type="button" id="add-workshop-btn">+</button>
     </fieldset>
 
     <button type="submit">Create Event</button>
 </form>
 
 <script type="module" src="{= BASE_URL }/js/workshops.js"></script>
+<script type="module" src="{= BASE_URL }/js/eventValidation.js"></script>

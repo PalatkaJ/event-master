@@ -4,10 +4,11 @@
 
 </div>
 
-<span class="page-buttons">
+<div class="page-buttons">
     <button type="button" id="previousButton">Previous</button>
+    <p id="pageNr"></p>
     <button type="button" id="nextButton">Next</button>
-</span>
+</div>
 
 <script>
     const allEvents = <?php echo $this->templateData['events_json'] ?>;

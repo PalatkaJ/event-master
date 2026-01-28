@@ -13,7 +13,7 @@
 
     <div class="form-group">
     <label for="start_date">Start Date:</label>
-    <input type="date" id="start_date" name="start_date" value="{= $event['start_date'] }">
+    <input type="date" id="start_date" name="start_date" min="{= date('Y-m-d')}" value="{= $event['start_date'] }">
     </div>
 
     <div class="form-group">
@@ -32,11 +32,11 @@
             {foreach $event['workshops'] as $workshop}
             <span class="workshop-entry">
                 <input type="text" name="workshops[]" aria-label="Workshop name" value="{= $workshop['name'] }" maxlength="64" readonly>
-                <button type="button" class="del-workshop-btn deleteBtn">Delete</button>
+                <button type="button" class="del-workshop-btn deleteBtn">remove</button>
             </span>
             {/foreach}
         </div>
-        <button type="button" id="add-workshop-w-del-btn">+ Add</button>
+        <button type="button" id="add-workshop-w-del-btn" class="add-btn">+</button>
     </fieldset>
     <button type="submit">Save Changes</button>
 </form>
@@ -46,3 +46,4 @@
 </form>
 
 <script type="module" src="{= BASE_URL }/js/workshops.js"></script>
+<script type="module" src="{= BASE_URL }/js/eventValidation.js"></script>

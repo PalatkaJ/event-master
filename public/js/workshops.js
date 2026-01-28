@@ -25,8 +25,9 @@ function addWorkshopWDel() {
 
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
-    delBtn.textContent = 'Delete';
-    delBtn.className = 'del-workshop-btn';
+    delBtn.textContent = 'remove';
+    delBtn.classList.add('del-workshop-btn');
+    delBtn.classList.add('deleteBtn');
 
     delBtn.addEventListener('click', (event) => {
         removeWorkshopWDel(event.target);

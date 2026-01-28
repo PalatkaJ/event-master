@@ -1,5 +1,7 @@
 <?php
 
+namespace src;
+
 class NotFoundException extends \Exception {
     public function __construct() {
         $this->message = "Not Found";

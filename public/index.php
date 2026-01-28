@@ -6,10 +6,12 @@ session_start();
 
 define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
 define('APP_ROOT', dirname(__DIR__));
-const PRESENTERS_DIR = APP_ROOT . '/src/presenters';
-const MODELS_DIR = APP_ROOT . '/src/models';
-const TEMPLATES_DIR = APP_ROOT . '/src/templates';
-const TEMP_DIR = APP_ROOT . '/src/temp';
+
+const SRC_DIR = APP_ROOT.'/src';
+const PRESENTERS_DIR = SRC_DIR . '/presenters';
+const MODELS_DIR = SRC_DIR . '/models';
+const TEMPLATES_DIR = SRC_DIR . '/templates';
+const TEMP_DIR = SRC_DIR . '/temp';
 const DATA_DIR = APP_ROOT .'/public/data';
 
 use src\FrontController;

@@ -7,7 +7,7 @@ export class EventPresenter {
 
     handleCurrentPage() {
         const events = this.eventModel.getPage(this.currentPage);
-        this.eventView.renderEvents(events);
+        this.eventView.renderEvents(events, this.currentPage, this.eventModel.getTotalPages());
     }
 
     nextPageAvailable() {

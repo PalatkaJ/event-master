@@ -3,7 +3,7 @@
 namespace presenters;
 
 use models as m;
-use NotFoundException;
+use src;
 
 require_once MODELS_DIR.'/EventModel.php';
 require_once MODELS_DIR.'/RegistrationModel.php';
@@ -20,7 +20,7 @@ class EventsPresenter extends BasePresenter
         $event = $this->eventModel->getEventById($id);
 
         if (!isset($event)) {
-            throw new NotFoundException();
+            throw new src\NotFoundException();
         }
 
         return $event;
@@ -44,9 +44,19 @@ class EventsPresenter extends BasePresenter
     }
 
     private function addUserWorkshopsToEvents(string $email, array &$events): void {
+        $events = array_filter($events, function($event) use ($email) {
+            $registeredWorkshops = $this->registrationModel->getUserRegisteredWorkshops($email, $event['id']);
+
+            if (empty($registeredWorkshops)) {
+                $this->eventModel->removeUserFromEvent($email, $event['id']);
+                return false;
+            }
+
+            return true;
+        });
+
         foreach ($events as &$event) {
-            $event['registeredWorkshops'] =
-                $this->registrationModel->getUserRegisteredWorkshops($email, $event['id']);
+            $event['registeredWorkshops'] = $this->registrationModel->getUserRegisteredWorkshops($email, $event['id']);
         }
     }
 
@@ -71,8 +81,13 @@ class EventsPresenter extends BasePresenter
         if (move_uploaded_file($files['hero_image']['tmp_name'], $destinationPath)) {
             return $randomName;
         } else {
-            throw new \ServerException();
+            throw new src\ServerException();
         }
+    }
+
+    private function isEventFormValid(array $event, array $workshops): bool {
+        $this->formValidator->validateEvent($event, $workshops);
+        return $this->formValidator->isValid();
     }
 
     private function createEvent(array $currentUser, mixed $data, mixed $files): void {
@@ -83,30 +98,35 @@ class EventsPresenter extends BasePresenter
 
     private function processEventCreation(string $reqMethod, mixed $data, mixed $files): void {
         $currentUser = $this->requireLogin();
+        $this->templateFilename = 'event_create.php';
 
         switch ($reqMethod) {
             case 'GET':
-                $this->templateFilename = 'event_create.php';
                 break;
             case 'POST':
+                if (!$this->isEventFormValid($data, $data['workshops'])) {
+                    $this->templateData['errors'] = $this->formValidator->getErrors();
+                    return;
+                }
                 $this->createEvent($currentUser, $data, $files);
                 header("Location: " . BASE_URL . "/");
                 exit;
             default:
-                throw new NotFoundException();
+                throw new src\NotFoundException();
         }
     }
 
-    private function updateEvent(array $event, mixed $data, mixed $files): void {
+    private function parseDataToEvent(array $data, array $files, array &$event): void {
         $randomName = $this->saveImage($files);
 
-        // TODO validation
         $event['name'] = $data['name'] ?? $event['name'];
         $event['description'] = $data['description'] ?? $event['description'];
         $event['start_date'] = $data['start_date'] ?? $event['start_date'];
         $event['end_date'] = $data['end_date'] ?? $event['end_date'];
         $event['hero_image'] = $randomName ?? $event['hero_image'];
+    }
 
+    private function updateEvent(array $event, mixed $data): void {
         $newWorkshops = $data['workshops'] ?? [];
         $currentWorkshops = array_column($event['workshops'], 'name');
         $workshopsToAdd = array_diff($newWorkshops, $currentWorkshops);
@@ -120,17 +140,23 @@ class EventsPresenter extends BasePresenter
         $event = $this->getSafeEvent($id);
 
         if (!$this->isCurrentUserOrganizer($id)) {
-            throw new \UnathorizedAccessException();
+            throw new src\UnathorizedAccessException();
         }
 
         $event['workshops'] = $this->eventModel->getWorkshopsForEvent($event['id']);
+        $this->templateFilename = 'event_update.php';
         switch ($reqMethod) {
             case 'GET':
                 $this->templateData['event'] = $event;
-                $this->templateFilename = 'event_update.php';
                 break;
             case 'POST':
-                $this->updateEvent($event, $data, $files);
+                $this->parseDataToEvent($data, $files, $event);
+                if (!$this->isEventFormValid($event, $data['workshops'])) {
+                    $this->templateData['errors'] = $this->formValidator->getErrors();
+                    return;
+                }
+
+                $this->updateEvent($event, $data);
                 header("Location: " . BASE_URL . "/events/" . $event['id']);
                 exit;
         }
@@ -158,7 +184,7 @@ class EventsPresenter extends BasePresenter
                 header("Location: " . BASE_URL . "/events/mine");
                 exit;
             default:
-                throw new NotFoundException();
+                throw new src\NotFoundException();
         }
     }
 
@@ -211,12 +237,12 @@ class EventsPresenter extends BasePresenter
 
     private function processEventDeletion(int $id, string $reqMethod): void {
         if ($reqMethod !== 'POST') {
-            throw new NotFoundException();
+            throw new src\NotFoundException();
         }
 
         $this->requireLogin();
         if (!$this->isCurrentUserOrganizer($id)) {
-            throw new \UnathorizedAccessException();
+            throw new src\UnathorizedAccessException();
         }
 
         $this->eventModel->deleteEvent($id);
@@ -258,6 +284,7 @@ class EventsPresenter extends BasePresenter
 
         switch ($url[1]) {
             case 'edit':
+                $data['is_edit'] = true;
                 $this->processEventEdit($id, $reqMethod, $data, $files);
                 break;
             case 'register':
@@ -270,7 +297,7 @@ class EventsPresenter extends BasePresenter
                 $this->processRegistrationCancel($id);
                 break;
             default:
-                throw new NotFoundException();
+                throw new src\NotFoundException();
         }
     }
 

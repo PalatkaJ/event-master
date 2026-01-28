@@ -2,8 +2,7 @@
 
 namespace models;
 
-use mysqli;
-use mysqli_sql_exception;
+use src;
 
 class EventModel {
     private \mysqli $mysqli;
@@ -25,6 +24,13 @@ class EventModel {
         }
 
         return null;
+    }
+
+    public function removeUserFromEvent(string $email, int $id) {
+        $sql = "DELETE FROM event_registration WHERE user_email=? AND event_id=?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('si', $email, $id);
+        $stmt->execute();
     }
 
     private function insertEvent(array $eventData) {
@@ -68,7 +74,7 @@ class EventModel {
 
         } catch (\mysqli_sql_exception $e) {
             $this->mysqli->rollback();
-            throw new \ServerException();
+            throw new src\ServerException();
         }
     }
 
@@ -143,7 +149,7 @@ class EventModel {
             $this->mysqli->commit();
         } catch (\mysqli_sql_exception $e) {
             $this->mysqli->rollback();
-            throw new \ServerException();
+            throw new src\ServerException();
         }
     }
     public function deleteEvent(int $eventId): void {

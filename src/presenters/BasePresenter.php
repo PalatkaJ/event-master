@@ -3,16 +3,18 @@
 namespace presenters;
 
 use Cassandra\Exception\UnauthorizedException;
-use NotFoundException;
-use src\Container;
+use src;
 
-require_once __DIR__.'/Templator.php';
+require_once SRC_DIR.'/FormValidator.php';
+require_once SRC_DIR.'/View.php';
 
 abstract class BasePresenter implements IPresenter
 {
-    private Templator $templator;
+    protected src\FormValidator $formValidator;
 
-    protected Container $container;
+    private src\View $view;
+
+    protected src\Container $container;
     protected \mysqli $mysqli;
 
     protected string $templateFilename;
@@ -20,14 +22,15 @@ abstract class BasePresenter implements IPresenter
     protected array $templateData = [];
 
     public function __construct() {
-        $this->templator = new Templator();
+        $this->formValidator = new src\FormValidator();
+        $this->view = new src\View();
     }
 
     protected function requireLogin(): array {
         $currentUser = $this->container->getLoggedUser();
 
         if (!isset($currentUser)) {
-            throw new \UnathorizedAccessException();
+            throw new src\UnathorizedAccessException();
         }
 
         return $currentUser;
@@ -35,39 +38,12 @@ abstract class BasePresenter implements IPresenter
 
     public abstract function process(array $url, string $requestMethod, mixed $data, mixed $files): void;
 
-    private function getPathTemplateFilename(string $filename): string {
-        return TEMPLATES_DIR . '/' . $filename;
-    }
-
-    private function getCompiledTemplateFilename(string $filename): string {
-        return TEMP_DIR . '/' . $filename;
-    }
-
-    private function tryCompileTemplate(string $filename):void {
-        try {
-            $this->templator->loadTemplate($this->getPathTemplateFilename($filename));
-            $this->templator->compileAndSave($this->getCompiledTemplateFilename($filename));
-        } catch (\Exception $e) {
-            echo "Template Error: " . $e->getMessage();
-            exit(1);
-        }
-    }
-
-    private function renderWithDataExtraction(string $filename): void {
-        $this->templateData['user'] = $this->container->getLoggedUser();
-        $this->tryCompileTemplate($filename);
-
-        extract($this->templateData);
-        require_once $this->getCompiledTemplateFilename($filename);
-    }
-
     public function render(): void {
-        $this->renderWithDataExtraction('_header.php');
-        $this->renderWithDataExtraction($this->templateFilename);
-        $this->renderWithDataExtraction('_footer.php');
+        $this->templateData['user'] = $this->container->getLoggedUser();
+        $this->view->render($this->templateFilename, $this->templateData);
     }
 
-    public function injectContainer(Container $container): void {
+    public function injectContainer(src\Container $container): void {
         $this->container = $container;
         $this->mysqli = $container->getDatabase();
     }

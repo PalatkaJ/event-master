@@ -281,12 +281,43 @@ legend {
     color: #6c757d;
 }
 
+#workshops-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.workshop-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.workshop-entry input[type="text"] {
+    flex: 1;
+}
+
+.page-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+#pageNr {
+    margin: 0;
+    font-weight: 600;
+    color: #495057;
+}
+
 @media (max-width: 768px) {
     nav {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .nav-left, .nav-right {
         flex-direction: column;
         width: 100%;
@@ -296,11 +327,11 @@ legend {
     .detail-group {
         flex-direction: column;
     }
-    
+
     .fake-label {
         margin-bottom: 0.25rem;
     }
-    
+
     form {
         padding: 1.5rem;
     }

@@ -3,6 +3,7 @@ export class EventView {
         this.previousButton = document.getElementById('previousButton');
         this.nextButton = document.getElementById('nextButton');
         this.eventsList = document.querySelector('.event-list');
+        this.pageNr = document.getElementById('pageNr');
     }
 
     setNextButtonHandler(handler) {
@@ -45,12 +46,14 @@ export class EventView {
         return item;
     }
 
-    renderEvents(events) {
+    renderEvents(events, pageNr, maxPages) {
         this.eventsList.innerHTML = '';
 
         events.forEach(event => {
             const card = this.createEventCard(event);
             this.eventsList.appendChild(card);
         });
+
+        this.pageNr.textContent = 'Page ' + pageNr + ' of ' + maxPages;
     }
 }

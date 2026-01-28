@@ -2,9 +2,8 @@
 
 namespace models;
 
-use Exception;
-use mysqli;
 use mysqli_sql_exception;
+use src;
 
 const USER_EXISTS_CODE = 1062;
 
@@ -38,9 +37,9 @@ class UserModel {
             $stmt->execute();
         } catch (mysqli_sql_exception $e) {
             if ($e->getCode() === USER_EXISTS_CODE) {
-                throw new \UserAlreadyExistsException();
+                throw new src\UserAlreadyExistsException();
             }
-            throw new \ServerException();
+            throw new src\ServerException();
         }
     }
 
@@ -52,7 +51,7 @@ class UserModel {
             $stmt->execute();
 
         } catch (\mysqli_sql_exception $e) {
-            throw new \ServerException();
+            throw new src\ServerException();
         }
     }
 
