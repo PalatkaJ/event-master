@@ -12,7 +12,7 @@
 
     <div class="form-group">
         <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" min="{= date('Y-m-d')}" required>
+        <input type="date" id="start_date" name="start_date" required>
     </div>
 
     <div class="form-group">

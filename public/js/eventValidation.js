@@ -7,3 +7,11 @@ startInput.addEventListener('change', () => {
         endInput.value = startInput.value;
     }
 });
+
+const today = new Date();
+const tomorrow = new Date(today);
+tomorrow.setDate(tomorrow.getDate() + 1);
+
+const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+startInput.setAttribute('min', tomorrowStr);

@@ -13,7 +13,7 @@
 
     <div class="form-group">
     <label for="start_date">Start Date:</label>
-    <input type="date" id="start_date" name="start_date" min="{= date('Y-m-d')}" value="{= $event['start_date'] }">
+    <input type="date" id="start_date" name="start_date" value="{= $event['start_date'] }">
     </div>
 
     <div class="form-group">

@@ -74,7 +74,7 @@ class EventModel {
 
         } catch (\mysqli_sql_exception $e) {
             $this->mysqli->rollback();
-            throw new src\ServerException();
+            throw new src\ServerException("unable to create event: ".$e->getMessage());
         }
     }
 

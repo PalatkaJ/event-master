@@ -81,7 +81,7 @@ class EventsPresenter extends BasePresenter
         if (move_uploaded_file($files['hero_image']['tmp_name'], $destinationPath)) {
             return $randomName;
         } else {
-            throw new src\ServerException();
+            throw new src\ServerException("unable to save image");
         }
     }
 

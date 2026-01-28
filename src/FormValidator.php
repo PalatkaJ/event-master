@@ -35,7 +35,7 @@ class FormValidator {
         $start = !empty($data['start_date']) ? new DateTime($data['start_date']) : null;
         $end = !empty($data['end_date']) ? new DateTime($data['end_date']) : null;
 
-        if (!$start || $start < $today) {
+        if (!$start || $start <= $today) {
             $this->errors['start_date'] = "Start date must be in the future.";
         }
 
