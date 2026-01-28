@@ -11,7 +11,7 @@
 </div>
 
 <script>
-    const allEvents = <?php echo $events_json ?? [];?>;
+    const allEvents = <?php echo $events_json ?? '[]';?>;
     const BASE_URL = '<?php echo BASE_URL; ?>';
 </script>
 <script type="module" src="{= BASE_URL }/js/events/EventModel.js"></script>
