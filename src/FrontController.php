@@ -71,6 +71,7 @@ class FrontController {
 
         $chunks = $path === '' ? [] : explode('/', $path);
 
+        var_dump(BASE_URL);
         var_dump($chunks);
 
         $presenter = $this->route($chunks[0] ?? null);
