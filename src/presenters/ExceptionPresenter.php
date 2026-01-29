@@ -17,5 +17,6 @@ class ExceptionPresenter extends BasePresenter
         $this->templateData['error_msg'] = $this->exception->getMessage();
 
         $this->templateFilename = 'error.php';
+        $this->render();
     }
 }

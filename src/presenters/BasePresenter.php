@@ -35,6 +35,11 @@ abstract class BasePresenter implements PresenterInterface
         return $currentUser;
     }
 
+    protected function setDataForRedirect(string $location): void {
+        $this->templateData['location'] = $location;
+        $this->templateFilename = 'redirect.php';
+    }
+
     public abstract function process(array $url, string $requestMethod, mixed $data, mixed $files): void;
 
     public function render(): void {

@@ -22,32 +22,31 @@ class UsersPresenter extends BasePresenter
 
         if ($user) {
             $this->container->loginUser($user['email'], $user['full_name']);
-            header("Location: " . BASE_URL . "/");
-            exit;
+            $this->setDataForRedirect('');
         } else {
-            header("Location: " . BASE_URL . "/register");
-            exit;
+            $this->setDataForRedirect('register');
         }
     }
 
     private function processLogin(string $reqMethod, mixed $data): void {
         $this->templateFilename = 'login.php';
-        switch ($reqMethod) {
-            case 'GET':
-                break;
-            case 'POST':
-                if (!$this->isUserEmailValid($data)) {
-                    $this->templateData['errors'] = $this->formValidator->getErrors();
-                    return;
-                }
-                $this->tryLogInUser($data);
+
+        if ($reqMethod == 'POST') {
+            if (!$this->isUserEmailValid($data)) {
+                $this->templateData['errors'] = $this->formValidator->getErrors();
+                $this->render();
+                return;
+            }
+            $this->tryLogInUser($data);
         }
+
+        $this->render();
     }
 
     private function processLogout(): void {
         $this->container->logoutUser();
-        header("Location: " . BASE_URL . "/");
-        exit;
+        $this->setDataForRedirect('');
+        $this->render();
     }
 
     private function isUserFormValid(array $data): bool {
@@ -62,28 +61,26 @@ class UsersPresenter extends BasePresenter
         try {
             $this->userModel->createUser(['email' => $email, 'full_name' => $fullName]);
             $this->container->loginUser($email, $fullName);
-            header("Location: " . BASE_URL . "/");
-            exit;
-        } catch (src\UserAlreadyExistsException $ue) {
-            header("Location: " . BASE_URL . "/login");
-            exit;
+            $this->setDataForRedirect('');
+        } catch (src\UserAlreadyExistsException) {
+            $this->setDataForRedirect('login');
         }
     }
 
     private function processRegister(string $reqMethod, mixed $data): void {
         $this->templateFilename = 'register_new_user.php';
 
-        switch ($reqMethod) {
-            case 'GET':
-                break;
-            case 'POST':
-                if (!$this->isUserFormValid($data)) {
-                    $this->templateData['errors'] = $this->formValidator->getErrors();
-                    return;
-                }
+        if ($reqMethod == 'POST') {
+            if (!$this->isUserFormValid($data)) {
+                $this->templateData['errors'] = $this->formValidator->getErrors();
+                $this->render();
+                return;
+            }
 
-                $this->tryCreateUser($data);
+            $this->tryCreateUser($data);
         }
+
+        $this->render();
     }
 
     private function updateUser(array $data, array $currentUser): void {
@@ -95,19 +92,19 @@ class UsersPresenter extends BasePresenter
         $currentUser = $this->requireLogin();
         $this->templateFilename = 'user_detail.php';
 
-        switch ($reqMethod) {
-            case 'GET':
-                break;
-            case 'POST':
-                if (!$this->isUserFormValid($data)) {
-                    $this->templateData['errors'] = $this->formValidator->getErrors();
-                    return;
-                }
+        if ($reqMethod == 'POST') {
+            if (!$this->isUserFormValid($data)) {
+                $this->templateData['errors'] = $this->formValidator->getErrors();
+                $this->render();
+                return;
+            }
 
-                $this->updateUser($data, $currentUser);
-                header("Location: " . BASE_URL . "/settings");
-                exit;
+            $this->updateUser($data, $currentUser);
+
+            $this->setDataForRedirect('settings');
         }
+
+        $this->render();
     }
 
     private function processAccountDelete(string $reqMethod): void {
@@ -118,8 +115,9 @@ class UsersPresenter extends BasePresenter
         $currentUser = $this->requireLogin();
         $this->container->logoutUser();
         $this->userModel->deleteUser($currentUser['email']);
-        header("Location: " . BASE_URL . "/");
-        exit;
+
+        $this->setDataForRedirect('');
+        $this->render();
     }
 
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void

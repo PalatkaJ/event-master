@@ -66,6 +66,7 @@ class EventsPresenter extends BasePresenter
 
         $this->templateFilename = 'landing_page.php';
         $this->templateData['events'] = $events;
+        $this->render();
     }
 
     private function saveImage(array $files): ?string {
@@ -100,21 +101,18 @@ class EventsPresenter extends BasePresenter
         $currentUser = $this->requireLogin();
         $this->templateFilename = 'event_create.php';
 
-        switch ($reqMethod) {
-            case 'GET':
-                break;
-            case 'POST':
-                if (!$this->isEventFormValid($data, $data, $files)) {
-                    $this->templateData['errors'] = $this->formValidator->getErrors();
-                    return;
-                }
+        if ($reqMethod === 'POST') {
+            if (!$this->isEventFormValid($data, $data, $files)) {
+                $this->templateData['errors'] = $this->formValidator->getErrors();
+                $this->render();
+                return;
+            }
 
-                $this->createEvent($currentUser, $data, $files);
-                header("Location: " . BASE_URL . "/");
-                exit;
-            default:
-                throw new src\NotFoundException();
+            $this->createEvent($currentUser, $data, $files);
+            $this->setDataForRedirect('');
         }
+
+        $this->render();
     }
 
     private function parseDataToEvent(array $data, array $files, array &$event): void {
@@ -151,29 +149,29 @@ class EventsPresenter extends BasePresenter
         $this->templateData['event'] = $event;
         $this->templateFilename = 'event_update.php';
 
-        switch ($reqMethod) {
-            case 'GET':
-                break;
-            case 'POST':
-                $this->parseDataToEvent($data, $files, $event);
-                if (!$this->isEventFormValid($event, $data, $files)) {
-                    $this->templateData['errors'] = $this->formValidator->getErrors();
+        if ($reqMethod === 'POST') {
+            $this->parseDataToEvent($data, $files, $event);
+            if (!$this->isEventFormValid($event, $data, $files)) {
+                $this->templateData['errors'] = $this->formValidator->getErrors();
+                $this->render();
+                return;
+            }
+
+            if (isset($data['recommended_event_id']) && $data['recommended_event_id'] !== "") {
+                $recommendedEvent = $this->eventModel->getEventById((int)$data['recommended_event_id']);
+                if ($recommendedEvent === null) {
+                    $this->templateData['errors'][] = "Event recommended not found.";
+                    $this->render();
                     return;
                 }
+                $event['recommended_event_id'] = $recommendedEvent['id'];
+            }
 
-                if (isset($data['recommended_event_id']) && $data['recommended_event_id'] !== "") {
-                    $recommendedEvent = $this->eventModel->getEventById((int)$data['recommended_event_id']);
-                    if ($recommendedEvent === null) {
-                        $this->templateData['errors'][] = "Event recommended not found.";
-                        return;
-                    }
-                    $event['recommended_event_id'] = $recommendedEvent['id'];
-                }
-
-                $this->updateEvent($event, $data);
-                header("Location: " . BASE_URL . "/events/" . $event['id']);
-                exit;
+            $this->updateEvent($event, $data);
+            $this->setDataForRedirect('events/'.$event['id']);
         }
+
+        $this->render();
     }
 
     private function areWorkshopsValid(array $data): bool {
@@ -192,21 +190,17 @@ class EventsPresenter extends BasePresenter
         $this->templateData['registeredIds'] = array_column($registeredWorkshops, 'id');
         $this->templateFilename = 'event_registration.php';
 
-        switch ($reqMethod) {
-            case 'GET':
-                break;
-            case 'POST':
-                if (!$this->areWorkshopsValid($data)) {
-                    $this->templateData['errors'] = $this->formValidator->getErrors();
-                    return;
-                }
+        if ($reqMethod === 'POST') {
+            if (!$this->areWorkshopsValid($data)) {
+                $this->templateData['errors'] = $this->formValidator->getErrors();
+                return;
+            }
 
-                $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
-                header("Location: " . BASE_URL . "/events/recommended");
-                exit;
-            default:
-                throw new src\NotFoundException();
+            $this->registrationModel->registerUserForEvent($currentUser['email'], $id, $data['workshops']);
+            $this->setDataForRedirect('events/recommended');
         }
+
+        $this->render();
     }
 
     private function isCurrentUserRegistered(int $eventId): bool {
@@ -240,6 +234,7 @@ class EventsPresenter extends BasePresenter
 
         $this->templateData['event'] = $event;
         $this->templateFilename = 'event_detail.php';
+        $this->render();
     }
 
     private function processEventsAll() {
@@ -248,6 +243,7 @@ class EventsPresenter extends BasePresenter
 
         $this->templateData['events_json'] = json_encode($events);
         $this->templateFilename = 'all_events.php';
+        $this->render();
     }
 
     private function processEventsAllUsers(): void {
@@ -258,6 +254,7 @@ class EventsPresenter extends BasePresenter
 
         $this->templateData['events'] = $events;
         $this->templateFilename = 'users_events.php';
+        $this->render();
     }
 
     private function processEventDeletion(int $id, string $reqMethod): void {
@@ -271,18 +268,18 @@ class EventsPresenter extends BasePresenter
         }
 
         $this->eventModel->deleteEvent($id);
-        header("Location: " . BASE_URL . "/");
-        exit;
+        $this->setDataForRedirect('');
+        $this->render();
     }
 
     private function processRegistrationCancel(int $eventId): void {
         $currentUser = $this->requireLogin();
-        $event = $this->getSafeEvent($eventId);
+        $this->getSafeEvent($eventId);
 
         $this->registrationModel->cancelUsersRegistration($currentUser['email'], $eventId);
 
-        header("Location: " . BASE_URL . "/events/" . $event['id']);
-        exit;
+        $this->setDataForRedirect('events/'.$eventId);
+        $this->render();
     }
 
     private function shouldAddEventToRecommended(int $eventId, array $usersEventsIds, $recommendedEvents): bool {
@@ -311,6 +308,7 @@ class EventsPresenter extends BasePresenter
 
         $this->templateData['events'] = $recommendedEvents;
         $this->templateFilename = 'recommended_events.php';
+        $this->render();
     }
 
     private function processEventSub(array $url, string $reqMethod, mixed $data, mixed $files): void {

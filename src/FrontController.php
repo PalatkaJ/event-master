@@ -50,8 +50,6 @@ class FrontController {
             $presenter->injectContainer($this->container);
             $presenter->process([], 'GET', null, null);
         }
-
-        $presenter->render();
     }
 
     private function getRelativePath(string $url): string {
