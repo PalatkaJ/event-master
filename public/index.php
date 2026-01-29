@@ -19,19 +19,18 @@ use src\Container;
 
 require_once APP_ROOT . '/src/FrontController.php';
 require_once APP_ROOT . '/src/Container.php';
-require_once APP_ROOT . '/.config.php';
 
-function main($config): void {
-
+function main(): void {
+    $db_config = json_decode(file_get_contents(APP_ROOT.'/config.json'), true);
 
     $fc = new FrontController();
 
     $container = new Container();
-    $container->createDatabase($config['host'], $config['user'], $config['password'], $config['database']);
+    $container->createDatabase($db_config['host'], $db_config['user'], $db_config['password'], $db_config['database']);
 
     $fc->injectContainer($container);
     $fc->routeAndDispatch($_SERVER);
 }
 
 
-main($DB_CONFIG);
+main();

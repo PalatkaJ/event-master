@@ -1,24 +1,40 @@
-# NSWI142 final project 
-## installation instructions
-### Database
-Create a new mysql database and import the file `db_schema.sql`, this will create
-the tables and insert test data to the tables.
-### Configuration
-Open file: [.config.template.php](.config.template.php) and fill in your db credentials. 
-Rename/ copy it to `.config.php`.
+# EventMaster - semestral project
+## Installation Instructions
+After cloning the repository there are still some steps needed to deploy the web application.
+### DB creation
+First we need to create the database instance.
+```
+mysql -u [USER] -p
+# Enter password when prompted
+CREATE DATABASE [DB_NAME];
+EXIT;
+```
+### Import
+After creating the db, import the tables and required test data.
+```
+mysql -u [USER] -p [DB_NAME] < db_schema.sql
+```
+### Application configuration
+The application uses JSON file for configuration.
+1. copy `config.json.example` into `config.json`
+2. open `config.json` and update the credentials to match your local environment
+3. To ensure that the application can store user saved images to the data directory, run `chmod 777 data/`
+### Deployment
+After all the initialization steps, run `deploy.sh` and you can click [here](http://127.0.0.1:8888) to visit the deployed application.
 
-## Preview
+## Preview of the application
 ![Landing Page Screenshot](images/landing_page.png)
 ![Register for Event Screenshot](images/register_for_event.png)
 
-### local testing
+### Notes (for me)
+#### local testing
 set up the connection with ssh (in separate terminal) and then run the server:
 ```
 $ ssh -L 3306:localhost:3306 webik
 ..
 $ php -S 127.0.0.1:8888 -t ./public/
 ```
-### on webik
+#### on webik
 works thanks to htaccess files,
 one /.htaccess and the other in /public/.htaccess 
 
