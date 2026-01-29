@@ -8,8 +8,8 @@ Open file: [.config.template.php](.config.template.php) and fill in your db cred
 Rename/ copy it to `.config.php`.
 
 ## Preview
-![Landing Page Screenshot](docs/landing_page.png)
-![Register for Event Screenshot](docs/register_for_event.png)
+![Landing Page Screenshot](./docs/landing_page.png)
+![Register for Event Screenshot](./docs/register_for_event.png)
 
 ### local testing
 set up the connection with ssh (in separate terminal) and then run the server:

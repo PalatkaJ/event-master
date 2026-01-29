@@ -6,8 +6,8 @@ use presenters as p;
 
 require_once __DIR__.'/Exceptions.php';
 
-require_once PRESENTERS_DIR.'/IPresenter.php';
-require_once PRESENTERS_DIR.'/BasePresenter.php';
+require_once PRESENTERS_DIR . '/PresenterInterface.php';
+require_once PRESENTERS_DIR . '/BasePresenter.php';
 require_once PRESENTERS_DIR.'/EventsPresenter.php';
 require_once PRESENTERS_DIR.'/UsersPresenter.php';
 require_once PRESENTERS_DIR . '/ExceptionPresenter.php';
@@ -19,7 +19,7 @@ class FrontController {
         $this->container = $container;
     }
 
-    private function route($urlChunk): p\IPresenter {
+    private function route($urlChunk): p\PresenterInterface {
         switch ($urlChunk) {
             case 'events':
             case '':

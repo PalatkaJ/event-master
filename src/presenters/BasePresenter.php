@@ -7,7 +7,7 @@ use src;
 require_once SRC_DIR.'/FormValidator.php';
 require_once SRC_DIR.'/View.php';
 
-abstract class BasePresenter implements IPresenter
+abstract class BasePresenter implements PresenterInterface
 {
     protected src\FormValidator $formValidator;
 

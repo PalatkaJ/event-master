@@ -21,17 +21,17 @@ require_once APP_ROOT . '/src/FrontController.php';
 require_once APP_ROOT . '/src/Container.php';
 require_once APP_ROOT . '/.config.php';
 
-function main(): void {
-    global $DB_CONFIG;
+function main($config): void {
+
 
     $fc = new FrontController();
 
     $container = new Container();
-    $container->createDatabase($DB_CONFIG['host'], $DB_CONFIG['user'], $DB_CONFIG['password'], $DB_CONFIG['database']);
+    $container->createDatabase($config['host'], $config['user'], $config['password'], $config['database']);
 
     $fc->injectContainer($container);
     $fc->routeAndDispatch($_SERVER);
 }
 
 
-main();
+main($DB_CONFIG);

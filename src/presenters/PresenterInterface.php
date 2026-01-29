@@ -4,7 +4,7 @@ namespace presenters;
 
 use src\Container;
 
-interface IPresenter
+interface PresenterInterface
 {
     public function process(array $url, string $requestMethod, mixed $data, mixed $files): void;
 
