@@ -18,7 +18,6 @@ mysql -u [USER] -p [DB_NAME] < db_schema.sql
 The application uses JSON file for configuration.
 1. copy `config.json.example` into `config.json`
 2. open `config.json` and update the credentials to match your local environment
-3. To ensure that the application can store user saved images to the data directory, run `chmod 777 data/`
 ### Deployment
 After all the initialization steps, run `deploy.sh` and you can click [here](http://127.0.0.1:8888) to visit the deployed application.
 
