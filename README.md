@@ -1,4 +1,4 @@
-# EventMaster - semestral project
+# EventMaster
 
 ## About the project
 EventMaster is a PHP-based web application for organizing and managing events. Users can browse available events, view event details, register for events, and sign up for associated workshops. Event organizers can create events with descriptions, dates, images, and workshop options, while the MySQL-backed data model keeps users, events, registrations, and workshops connected.
@@ -30,16 +30,4 @@ After all the initialization steps, run `deploy.sh` and you can click [here](htt
 ## Preview of the application
 ![Landing Page Screenshot](images/landing_page.png)
 ![Register for Event Screenshot](images/register_for_event.png)
-
-### Notes (for me)
-#### local testing
-set up the connection with ssh (in separate terminal) and then run the server:
-```
-$ ssh -L 3306:localhost:3306 webik
-..
-$ php -S 127.0.0.1:8888 -t ./public/
-```
-#### on webik
-works thanks to htaccess files,
-one /.htaccess and the other in /public/.htaccess 
 
