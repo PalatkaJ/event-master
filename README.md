@@ -1,4 +1,10 @@
 # EventMaster - semestral project
+
+## About the project
+EventMaster is a PHP-based web application for organizing and managing events. Users can browse available events, view event details, register for events, and sign up for associated workshops. Event organizers can create events with descriptions, dates, images, and workshop options, while the MySQL-backed data model keeps users, events, registrations, and workshops connected.
+
+The application uses a lightweight MVC-style structure with PHP controllers, models, presenters, templates, and form validation. It is intended as a semestral project and can be run locally using PHP's built-in development server.
+
 ## Installation Instructions
 After cloning the repository there are still some steps needed to deploy the web application.
 ### DB creation
